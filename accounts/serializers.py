@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, password_validation
 from rest_framework import serializers
 from django.utils import timezone
 from datetime import timedelta
-from .models import CustomUser
+from .models import CustomUser, Follow
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -81,3 +81,13 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         user.otp = None  # حذف OTP پس از استفاده
         user.save()
         return user
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    follower = serializers.ReadOnlyField(source='follower.username')
+    following = serializers.SlugRelatedField(slug_field="username", queryset=CustomUser.objects.all())
+
+    class Meta:
+        model = Follow
+        fields = ['id', 'follower', 'following', 'created_at']
+        read_only_fields = ['follower', 'created_at']

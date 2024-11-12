@@ -1,10 +1,12 @@
-from rest_framework import generics, status
+from rest_framework import generics, viewsets, status, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser
+from .models import CustomUser, Follow
 from .serializers import (UserRegistrationSerializer, UserOTPLoginSerializer, UserPasswordLoginSerializer,
-                          OTPRequestSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer)
+                          OTPRequestSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer,
+                          FollowSerializer)
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -87,3 +89,22 @@ class PasswordResetConfirmView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"message": "Password has been reset successfully."})
+
+
+class FollowViewSet(viewsets.ModelViewSet):
+    queryset = Follow.objects.all()
+    serializer_class = FollowSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        following = serializer.validated_data.get("following")
+
+        # Prevent a user from following themselves
+        if self.request.user == following:
+            raise ValidationError("You cannot follow yourself.")
+
+        # Prevent duplicate follows
+        if Follow.objects.filter(follower=self.request.user, following=following).exists():
+            raise ValidationError("You are already following this user.")
+
+        serializer.save(follower=self.request.user)
