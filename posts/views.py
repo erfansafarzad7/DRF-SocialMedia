@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions
 from rest_framework.exceptions import ValidationError
-from .models import Post, Comment, Like
-from .serializers import PostSerializer, CommentSerializer, LikeSerializer
+from .models import Post, Comment, Like, Tag
+from .serializers import PostSerializer, CommentSerializer, LikeSerializer, TagSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -39,3 +39,8 @@ class LikeViewSet(viewsets.ModelViewSet):
             raise ValidationError("You have already liked this post or comment.")
 
         serializer.save(user=self.request.user)
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer

@@ -8,12 +8,13 @@ from .views import (
     OTPRequestView,
     PasswordResetRequestView,
     PasswordResetConfirmView,
-    FollowViewSet
+    FollowViewSet,
+    NotificationViewSet
 )
 
 router = DefaultRouter()
 router.register(r'follows', FollowViewSet)
-
+router.register(r'notifications', NotificationViewSet)
 
 urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

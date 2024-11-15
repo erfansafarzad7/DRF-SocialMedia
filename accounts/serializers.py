@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, password_validation
 from rest_framework import serializers
 from django.utils import timezone
 from datetime import timedelta
-from .models import CustomUser, Follow
+from .models import CustomUser, Follow, Notification
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -91,3 +91,9 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ['id', 'follower', 'following', 'created_at']
         read_only_fields = ['follower', 'created_at']
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'user', 'message', 'created_at', 'is_read']

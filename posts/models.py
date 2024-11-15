@@ -4,11 +4,21 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class StatusChoices:
+    DRAFT = 0
+    PUBLISHED = 1
+
+    CHOICES = [
+        (DRAFT, 'Draft'),
+        (PUBLISHED, 'Published'),
+    ]
+
+
 class Post(models.Model):
-    image = models.ImageField(upload_to='posts/', null=True, blank=True)  # Add image field
+    image = models.ImageField(upload_to='posts/', null=True, blank=True)
     caption = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-    published = models.BooleanField(default=False)
+    status = models.IntegerField(choices=StatusChoices.CHOICES, default=StatusChoices.DRAFT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -20,7 +30,7 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
-    published = models.BooleanField(default=False)
+    status = models.IntegerField(choices=StatusChoices.CHOICES, default=StatusChoices.DRAFT)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -40,3 +50,16 @@ class Like(models.Model):
         if self.post:
             return f"Like by '{self.user}' on '{self.post}'"
         return f"Like by '{self.user}' on 'Comment_{self.comment.id}'"
+
+    def save(self, *args, **kwargs):
+        if not (self.post or self.comment):
+            raise ValueError("A like must be associated with either a post or a comment.")
+        super().save(*args, **kwargs)
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    posts = models.ManyToManyField(Post, related_name="tags")
+
+    def __str__(self):
+        return self.name

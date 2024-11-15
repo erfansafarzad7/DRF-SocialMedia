@@ -3,10 +3,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser, Follow
+from .models import CustomUser, Follow, Notification
 from .serializers import (UserRegistrationSerializer, UserOTPLoginSerializer, UserPasswordLoginSerializer,
                           OTPRequestSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer,
-                          FollowSerializer)
+                          FollowSerializer, NotificationSerializer)
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -108,3 +108,8 @@ class FollowViewSet(viewsets.ModelViewSet):
             raise ValidationError("You are already following this user.")
 
         serializer.save(follower=self.request.user)
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
