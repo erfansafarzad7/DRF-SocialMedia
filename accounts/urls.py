@@ -11,7 +11,8 @@ from .views import (
 )
 
 follow_list = FollowViewSet.as_view({'get': 'list'})
-follow_create = FollowViewSet.as_view({'post': 'create'})
+follow = FollowViewSet.as_view({'post': 'create'})
+unfollow = FollowViewSet.as_view({'delete': 'delete'})
 
 urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token'),
@@ -23,8 +24,9 @@ urlpatterns = [
     path('password-reset/request/', PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 
-    path('follow/', follow_list, name='follow-list'),
-    path('follow/create/', follow_create, name='follow-create'),
+    path('follow-list/', follow_list, name='follow-list'),
+    path('follow/', follow, name='follow'),
+    path('unfollow/', unfollow, name='unfollow'),
 
     path('notifications/', NotificationView.as_view(), name='notifications'),
 ]

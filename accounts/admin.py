@@ -19,7 +19,7 @@ class CustomUserAdmin(BaseUserAdmin):
         }),
     )
     search_fields = ('id', 'mobile', 'username')
-    ordering = ('mobile',)
+    ordering = ('id',)
     filter_horizontal = ('groups', 'user_permissions',)
     list_display_links = ('id', 'mobile', 'username')
 

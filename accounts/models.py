@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
@@ -7,6 +6,11 @@ from utils.validators import phone_regex
 from .managers import CustomUserManager
 from datetime import timedelta
 from random import randint
+import time
+
+
+def generate_random_username():
+    return f"User_{int(time.time()) + randint(1, 9999)}"
 
 
 class OTPVerification(models.Model):
@@ -18,9 +22,15 @@ class OTPVerification(models.Model):
         return f"OTP for {self.mobile}"
 
     def send_with_sms(self):
-        print(f'OTP Code: {self.code}')
+        """
+        Sends the OTP code via SMS to the user's mobile number.
+        """
+        print(f'OTP Code: {self.code} - To: {self.mobile}')
 
     def valid_delay(self):
+        """
+        Checks if at least 3 minutes have passed since the last OTP generation.
+        """
         if self.created_at and now() <= self.created_at + timedelta(minutes=3):
             return False
 
@@ -29,15 +39,17 @@ class OTPVerification(models.Model):
         return True
 
     def is_otp_valid(self, otp):
+        """
+        Verifies if the provided OTP matches the generated code and
+        ensures it has not expired (valid for up to 5 minutes).
+        """
         if self.code == str(otp) and now() <= self.created_at + timedelta(minutes=5):
             return True
         return False
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(_('Username'), max_length=30, unique=True,
-                                default=f"User_{randint(10000, 99999)}")
-
+    username = models.CharField(_('Username'), max_length=30, default=generate_random_username, unique=True)
     mobile = models.CharField(_('Mobile Number'), max_length=11, validators=[phone_regex, ], unique=True)
     is_active = models.BooleanField(_('Is Active'), default=True)
     is_staff = models.BooleanField(_('Is Staff'), default=False)

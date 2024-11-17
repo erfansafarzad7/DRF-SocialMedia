@@ -10,6 +10,10 @@ from .serializers import (OTPRequestSerializer, OTPVerifySerializer, PasswordRes
 
 
 class OTPRequestView(APIView):
+    """
+    View to send an OTP to the user's mobile number.
+    """
+
     def post(self, request):
         serializer = OTPRequestSerializer(data=request.data)
         if serializer.is_valid():
@@ -19,6 +23,10 @@ class OTPRequestView(APIView):
 
 
 class OTPVerifyView(APIView):
+    """
+    View to verify OTP and authenticate user.
+    If OTP is valid, generate and return JWT tokens (refresh and access).
+    """
 
     def create_token_response(self, user):
         refresh = RefreshToken.for_user(user)
@@ -35,6 +43,12 @@ class OTPVerifyView(APIView):
 
 
 class PasswordResetRequestView(generics.GenericAPIView):
+    """
+    View to request a password reset OTP.
+    The user is required to provide their mobile number.
+    If a valid user exists, an OTP is generated and sent to the mobile number.
+    """
+
     serializer_class = PasswordResetRequestSerializer
     permission_classes = [AllowAny]
 
@@ -45,7 +59,7 @@ class PasswordResetRequestView(generics.GenericAPIView):
 
         try:
             user = CustomUser.objects.get(mobile=mobile)
-            otp = user.generate_otp()
+            otp = user.generate_otp()  # Generate OTP for the user
         except CustomUser.DoesNotExist:
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -57,20 +71,33 @@ class PasswordResetRequestView(generics.GenericAPIView):
 
 
 class PasswordResetConfirmView(generics.GenericAPIView):
+    """
+    A view to handle the password reset confirmation.
+    """
+
     serializer_class = PasswordResetConfirmSerializer
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        # Save the new password after successful validation
         serializer.save()
         return Response({"message": "Password has been reset successfully."})
 
 
 class FollowViewSet(viewsets.ViewSet):
+    """
+    A ViewSet to manage user follow and unfollow actions.
+    Users can view their followers and following lists, and follow/unfollow others.
+    """
+
     permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request):
+        """
+        Returns the lists of usernames for both followers and following users.
+        """
         user = request.user
         followers = user.followers.all()
         following = user.following.all()
@@ -80,6 +107,11 @@ class FollowViewSet(viewsets.ViewSet):
         })
 
     def create(self, request):
+        """
+        Allows a user to follow another user.
+        Ensures the user cannot follow themselves and prevents duplicate follow actions.
+        """
+
         serializer = FollowSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         following = serializer.validated_data.get("following")
@@ -90,11 +122,32 @@ class FollowViewSet(viewsets.ViewSet):
             raise ValidationError({"message": "You cannot follow yourself."})
 
         # Prevent duplicate follows
-        if following.id in user.following.values_list('following', flat=True):
+        # if following.id in user.following.values_list('following', flat=True):
+        if user.following.filter(following=following).first():
             raise ValidationError({"message": "You are already following this user."})
 
-        serializer.save(follower=self.request.user)
+        serializer.save(follower=user)
         return Response(serializer.data, status=201)
+
+    def delete(self, request):
+        """
+        Allows a user to unfollow another user.
+        Ensures that the user can only unfollow someone they are currently following.
+        """
+        serializer = FollowSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        following = serializer.validated_data.get("following")
+        user = self.request.user
+
+        # Check if the user is following the other user
+        follow_instance = user.following.filter(following=following).first()
+
+        if not follow_instance:
+            raise ValidationError({"message": "You are not following this user."})
+
+        # Remove the follow relationship
+        follow_instance.delete()
+        return Response({"message": "You have unfollowed this user."}, status=status.HTTP_204_NO_CONTENT)
 
 
 class NotificationView(generics.ListAPIView):
