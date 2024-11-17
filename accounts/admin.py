@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import CustomUser, Follow, Notification
+from .models import CustomUser, OTPVerification, Follow, Notification
 
 
 @admin.register(CustomUser)
@@ -11,18 +11,24 @@ class CustomUserAdmin(BaseUserAdmin):
         (None, {'fields': ('mobile', 'username', 'password')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login',)}),
-        ('OTP Info', {'fields': ('otp', 'otp_created')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('mobile', 'username', 'password1', 'password2', 'is_active', 'is_staff')}
-        ),
+            'fields': ('mobile', 'username', 'password1', 'password2', 'is_active', 'is_staff')
+        }),
     )
     search_fields = ('id', 'mobile', 'username')
     ordering = ('mobile',)
     filter_horizontal = ('groups', 'user_permissions',)
     list_display_links = ('id', 'mobile', 'username')
+
+
+@admin.register(OTPVerification)
+class OTPVerificationAdmin(admin.ModelAdmin):
+    list_display = ['mobile', 'code', 'created_at']
+    search_fields = ['mobile', 'code']
+    list_filter = ['created_at']
 
 
 @admin.register(Follow)
@@ -36,4 +42,5 @@ class FollowAdmin(admin.ModelAdmin):
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'message', 'is_read']
-    list_filter = ['is_read', 'user']
+    list_filter = ['is_read', 'user', 'created_at']
+    autocomplete_fields = ['user']

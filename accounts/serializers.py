@@ -1,85 +1,82 @@
-from django.contrib.auth import authenticate, password_validation
 from rest_framework import serializers
-from django.utils import timezone
-from datetime import timedelta
-from .models import CustomUser, Follow, Notification
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.fields import empty
+from django.contrib.auth import password_validation
+from django.contrib.auth import get_user_model
+from utils.validators import phone_regex
+from .models import CustomUser, OTPVerification, Follow, Notification
+from random import randint
 
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['mobile']
+User = get_user_model()
 
 
-class UserOTPLoginSerializer(serializers.Serializer):
-    mobile = serializers.CharField()
-    otp = serializers.CharField()
+class OTPVerificationBaseSerializer(serializers.Serializer):
+    mobile = serializers.CharField(max_length=11, validators=[phone_regex])
+    otp = serializers.CharField(max_length=6)
+
+    def __init__(self, instance=None, data=empty, **kwargs):
+        super().__init__(instance, data, **kwargs)
+        self.otp_verification = None
 
     def validate(self, data):
+        otp = data.get('otp')
+        mobile = data.get('mobile')
+
         try:
-            user = CustomUser.objects.get(mobile=data['mobile'])
-        except CustomUser.DoesNotExist:
-            raise serializers.ValidationError("User not found.")
+            otp_verification = OTPVerification.objects.get(mobile=mobile)
+        except OTPVerification.DoesNotExist:
+            raise serializers.ValidationError({'mobile': 'Invalid Mobile Number Or OTP.'})
 
-        if user.otp != data['otp'] or timezone.now() > user.otp_created + timedelta(minutes=5):
-            raise serializers.ValidationError("Invalid or expired OTP.")
+        if not otp_verification.is_otp_valid(otp) or not otp.isdigit():
+            raise serializers.ValidationError({'otp': 'Invalid or expired OTP.'})
 
-        return data
-
-
-class UserPasswordLoginSerializer(serializers.Serializer):
-    mobile = serializers.CharField()
-    password = serializers.CharField()
-
-    def validate(self, data):
-        user = authenticate(mobile=data['mobile'], password=data['password'])
-        if user is None:
-            raise serializers.ValidationError("Invalid credentials.")
+        self.otp_verification = otp_verification
         return data
 
 
 class OTPRequestSerializer(serializers.Serializer):
-    mobile = serializers.CharField()
+    mobile = serializers.CharField(max_length=11, validators=[phone_regex])
 
-    def validate(self, data):
-        if not CustomUser.objects.filter(mobile=data['mobile']).exists():
-            raise serializers.ValidationError("User not found.")
-        return data
+    def create(self, validated_data):
+        otp, created = OTPVerification.objects.get_or_create(mobile=validated_data['mobile'])
+
+        if otp.valid_delay():
+            otp.code = randint(100000, 999999)
+            otp.save()
+            otp.send_with_sms()
+        else:
+            raise serializers.ValidationError('Wait Until Delay Ends.')
+
+        return otp
+
+
+class OTPVerifySerializer(OTPVerificationBaseSerializer):
+    def create(self, validated_data):
+        user, created = User.objects.get_or_create(
+            mobile=validated_data['mobile']
+        )
+        self.otp_verification.delete()
+        return user
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):
-    mobile = serializers.CharField()
-
-    def validate(self, data):
-        if not CustomUser.objects.filter(mobile=data['mobile']).exists():
-            raise serializers.ValidationError("User not found.")
-        return data
+    mobile = serializers.CharField(max_length=11, validators=[phone_regex])
 
 
-class PasswordResetConfirmSerializer(serializers.Serializer):
-    mobile = serializers.CharField()
-    otp = serializers.CharField()
+class PasswordResetConfirmSerializer(OTPVerificationBaseSerializer):
     new_password = serializers.CharField()
 
     def validate(self, data):
-        try:
-            user = CustomUser.objects.get(mobile=data['mobile'])
-        except CustomUser.DoesNotExist:
-            raise serializers.ValidationError("User not found.")
+        data = super().validate(data)
 
-        # بررسی صحت OTP
-        if user.otp != data['otp'] or timezone.now() > user.otp_created + timedelta(minutes=5):
-            raise serializers.ValidationError("Invalid or expired OTP.")
-
-        password_validation.validate_password(data['new_password'], user)
+        password_validation.validate_password(data['new_password'])
         return data
 
     def save(self):
         user = CustomUser.objects.get(mobile=self.validated_data['mobile'])
         user.set_password(self.validated_data['new_password'])
-        user.otp = None  # حذف OTP پس از استفاده
         user.save()
+        self.otp_verification.delete()
         return user
 
 

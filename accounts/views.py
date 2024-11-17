@@ -1,31 +1,24 @@
 from rest_framework import generics, viewsets, status, permissions
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser, Follow, Notification
-from .serializers import (UserRegistrationSerializer, UserOTPLoginSerializer, UserPasswordLoginSerializer,
-                          OTPRequestSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer,
-                          FollowSerializer, NotificationSerializer)
+from .models import CustomUser, OTPVerification, Follow, Notification
+from .serializers import (OTPRequestSerializer, OTPVerifySerializer, PasswordResetRequestSerializer,
+                          PasswordResetConfirmSerializer, FollowSerializer, NotificationSerializer)
 
 
-class UserRegistrationView(generics.CreateAPIView):
-    serializer_class = UserRegistrationSerializer
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        user.generate_otp()
-        return Response({"message": "User registered. OTP sent to mobile."}, status=status.HTTP_201_CREATED)
+class OTPRequestView(APIView):
+    def post(self, request):
+        serializer = OTPRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "OTP sent successfully!"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class BaseUserLoginView(generics.GenericAPIView):
-    permission_classes = [AllowAny]
-
-    def get_user(self, validated_data):
-        return CustomUser.objects.get(mobile=validated_data['mobile'])
+class OTPVerifyView(APIView):
 
     def create_token_response(self, user):
         refresh = RefreshToken.for_user(user)
@@ -34,32 +27,11 @@ class BaseUserLoginView(generics.GenericAPIView):
             "access": str(refresh.access_token),
         }
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+    def post(self, request):
+        serializer = OTPVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = self.get_user(serializer.validated_data)
+        user = serializer.save()
         return Response(self.create_token_response(user))
-
-
-class UserOTPLoginView(BaseUserLoginView):
-    serializer_class = UserOTPLoginSerializer
-
-
-class UserPasswordLoginView(BaseUserLoginView):
-    serializer_class = UserPasswordLoginSerializer
-
-
-class OTPRequestView(generics.GenericAPIView):
-    serializer_class = OTPRequestSerializer
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = CustomUser.objects.get(mobile=serializer.validated_data['mobile'])
-        otp = user.generate_otp()
-        # Send OTP via SMS or any other service here
-        return Response({"message": "OTP sent to mobile."})
 
 
 class PasswordResetRequestView(generics.GenericAPIView):
@@ -69,15 +41,19 @@ class PasswordResetRequestView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = CustomUser.objects.get(mobile=serializer.validated_data['mobile'])
+        mobile = serializer.validated_data['mobile']
 
-        otp = user.generate_otp()
-        if otp is None:
+        try:
+            user = CustomUser.objects.get(mobile=mobile)
+            otp = user.generate_otp()
+        except CustomUser.DoesNotExist:
+            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not otp:
             return Response({"message": "Please wait before requesting another OTP."},
                             status=status.HTTP_429_TOO_MANY_REQUESTS)
 
-        # Send OTP via SMS or any other service here
-        return Response({"message": "OTP sent to mobile."})
+        return Response({"message": "OTP sent to mobile."}, status=status.HTTP_200_OK)
 
 
 class PasswordResetConfirmView(generics.GenericAPIView):
@@ -91,25 +67,42 @@ class PasswordResetConfirmView(generics.GenericAPIView):
         return Response({"message": "Password has been reset successfully."})
 
 
-class FollowViewSet(viewsets.ModelViewSet):
-    queryset = Follow.objects.all()
-    serializer_class = FollowSerializer
+class FollowViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
+    def list(self, request):
+        user = request.user
+        followers = user.followers.all()
+        following = user.following.all()
+        return Response({
+            "followers": [f.follower.username for f in followers],
+            "following": [f.following.username for f in following]
+        })
+
+    def create(self, request):
+        serializer = FollowSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         following = serializer.validated_data.get("following")
+        user = self.request.user
 
         # Prevent a user from following themselves
-        if self.request.user == following:
-            raise ValidationError("You cannot follow yourself.")
+        if user == following:
+            raise ValidationError({"message": "You cannot follow yourself."})
 
         # Prevent duplicate follows
-        if Follow.objects.filter(follower=self.request.user, following=following).exists():
-            raise ValidationError("You are already following this user.")
+        if following.id in user.following.values_list('following', flat=True):
+            raise ValidationError({"message": "You are already following this user."})
 
         serializer.save(follower=self.request.user)
+        return Response(serializer.data, status=201)
 
 
-class NotificationViewSet(viewsets.ModelViewSet):
+class NotificationView(generics.ListAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Notification.objects.filter(user=user)
+
