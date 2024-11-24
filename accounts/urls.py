@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from .views import (
+    UserViewSet,
     OTPRequestView,
     OTPVerifyView,
     PasswordResetRequestView,
@@ -9,6 +10,9 @@ from .views import (
     FollowViewSet,
     NotificationView
 )
+
+router = DefaultRouter()
+router.register(r'users', UserViewSet, basename='user')
 
 follow_list = FollowViewSet.as_view({'get': 'list'})
 follow = FollowViewSet.as_view({'post': 'create'})
@@ -29,4 +33,6 @@ urlpatterns = [
     path('unfollow/', unfollow, name='unfollow'),
 
     path('notifications/', NotificationView.as_view(), name='notifications'),
+
+    path('', include(router.urls)),
 ]

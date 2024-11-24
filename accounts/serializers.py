@@ -10,6 +10,37 @@ from random import randint
 User = get_user_model()
 
 
+class UserListSerializer(serializers.ModelSerializer):
+    """
+    Serializer for listing users.
+    """
+
+    user = serializers.HyperlinkedIdentityField(
+        view_name='user-detail',
+        lookup_field='username',
+        read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'user', 'created_at']
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer for detailing user and their posts.
+    """
+
+    posts = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='post-detail',  # View name for the individual post
+        read_only=True
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'posts', 'is_active', 'is_staff', 'created_at']
+
+
 class OTPVerificationBaseSerializer(serializers.Serializer):
     """
     A base serializer for handling OTP verification and password reset confirmation.

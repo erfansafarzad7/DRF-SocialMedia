@@ -1,12 +1,37 @@
-from rest_framework import generics, viewsets, status, permissions
+from rest_framework import generics, viewsets, status, permissions, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser, OTPVerification, Follow, Notification
-from .serializers import (OTPRequestSerializer, OTPVerifySerializer, PasswordResetRequestSerializer,
-                          PasswordResetConfirmSerializer, FollowSerializer, NotificationSerializer)
+from utils.permissions import IsOwnProfile
+from .models import CustomUser, Notification
+from .serializers import (UserListSerializer, UserDetailSerializer, OTPRequestSerializer, OTPVerifySerializer,
+                          PasswordResetRequestSerializer, PasswordResetConfirmSerializer, FollowSerializer,
+                          NotificationSerializer)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    View to list, retrieve and update users.
+    Create and Delete are not allowed.
+    """
+
+    queryset = CustomUser.objects.all().order_by('-created_at')
+    permission_classes = [IsOwnProfile]  # Users only can edit their own profile
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', ]  # Fields available for searching
+    pagination_class = PageNumberPagination
+    lookup_field = 'username'
+
+    def get_serializer_class(self):
+        """
+        Choose serializer for (list/retrieve).
+        """
+        if self.action == 'retrieve':
+            return UserDetailSerializer
+        return UserListSerializer
 
 
 class OTPRequestView(APIView):
