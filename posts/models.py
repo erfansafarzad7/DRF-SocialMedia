@@ -15,7 +15,7 @@ class StatusChoices:
 
 
 class Post(models.Model):
-    image = models.ImageField(upload_to='posts/', null=True, blank=True)
+    image = models.ImageField(upload_to='posts/')
     caption = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     status = models.IntegerField(choices=StatusChoices.CHOICES, default=StatusChoices.DRAFT)
