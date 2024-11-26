@@ -30,15 +30,25 @@ class UserDetailSerializer(serializers.ModelSerializer):
     Serializer for detailing user and their posts.
     """
 
+    mobile = serializers.SerializerMethodField()
     posts = serializers.HyperlinkedRelatedField(
         many=True,
-        view_name='post-detail',  # View name for the individual post
+        view_name='post-detail',
         read_only=True
     )
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'posts', 'is_active', 'is_staff', 'created_at']
+        fields = ['id', 'username', 'mobile', 'posts', 'created_at']
+
+    def get_mobile(self, obj):
+        """
+        Show mobile field only if the request user is the object user.
+        """
+        request = self.context.get('request')
+        if request and request.user == obj:
+            return obj.mobile
+        return None  # Hide the mobile field for other users
 
 
 class OTPVerificationBaseSerializer(serializers.Serializer):

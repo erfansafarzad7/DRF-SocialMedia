@@ -29,9 +29,14 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         Choose serializer for (list/retrieve).
         """
-        if self.action == 'retrieve':
+        if self.action in ['retrieve', 'update', 'partial_update']:
             return UserDetailSerializer
         return UserListSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 class OTPRequestView(APIView):
