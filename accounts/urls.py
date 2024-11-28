@@ -5,8 +5,8 @@ from .views import (
     UserViewSet,
     OTPRequestView,
     OTPVerifyView,
-    PasswordResetRequestView,
     PasswordResetConfirmView,
+    ChangeMobileConfirmView,
     FollowViewSet,
     NotificationView
 )
@@ -25,8 +25,9 @@ urlpatterns = [
     path('otp-request/', OTPRequestView.as_view(), name='otp_request'),
     path('otp-verify/', OTPVerifyView.as_view(), name='otp_verify'),
 
-    path('password-reset/request/', PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+
+    path('change-mobile/confirm/', ChangeMobileConfirmView.as_view(), name='change_mobile_confirm'),
 
     path('follow-list/', follow_list, name='follow-list'),
     path('follow/', follow, name='follow'),

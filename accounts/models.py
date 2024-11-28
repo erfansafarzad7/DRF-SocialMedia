@@ -13,13 +13,21 @@ def generate_random_username():
     return f"User_{int(time.time()) + randint(1, 9999)}"
 
 
+def generate_random_code():
+    return randint(100000, 999999)
+
+
 class OTPVerification(models.Model):
     mobile = models.CharField(_('Mobile Number'), max_length=11, validators=[phone_regex], unique=True)
-    code = models.CharField(_('One Time Password'), max_length=6, default=randint(100000, 999999))
+    code = models.CharField(_('One Time Password'), max_length=6, default=generate_random_code())
     created_at = models.DateTimeField(_('OTP Create Time'), null=True, blank=True)
 
     def __str__(self):
         return f"OTP for {self.mobile}"
+
+    def regenerate_otp(self):
+        self.code = generate_random_code()
+        self.save()
 
     def send_with_sms(self):
         """
@@ -76,8 +84,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class Follow(models.Model):
-    follower = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="following")
-    following = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followers")
+    follower = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followers")
+    following = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followings")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

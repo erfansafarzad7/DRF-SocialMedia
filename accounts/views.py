@@ -1,15 +1,15 @@
 from rest_framework import generics, viewsets, status, permissions, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 from utils.permissions import IsOwnProfile
-from .models import CustomUser, Notification
+from .models import OTPVerification, CustomUser, Notification
 from .serializers import (UserListSerializer, UserDetailSerializer, OTPRequestSerializer, OTPVerifySerializer,
-                          PasswordResetRequestSerializer, PasswordResetConfirmSerializer, FollowSerializer,
-                          NotificationSerializer)
+                          PasswordResetConfirmSerializer, FollowSerializer,
+                          ChangeMobileConfirmSerializer, NotificationSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -72,34 +72,6 @@ class OTPVerifyView(APIView):
         return Response(self.create_token_response(user))
 
 
-class PasswordResetRequestView(generics.GenericAPIView):
-    """
-    View to request a password reset OTP.
-    The user is required to provide their mobile number.
-    If a valid user exists, an OTP is generated and sent to the mobile number.
-    """
-
-    serializer_class = PasswordResetRequestSerializer
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        mobile = serializer.validated_data['mobile']
-
-        try:
-            user = CustomUser.objects.get(mobile=mobile)
-            otp = user.generate_otp()  # Generate OTP for the user
-        except CustomUser.DoesNotExist:
-            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        if not otp:
-            return Response({"message": "Please wait before requesting another OTP."},
-                            status=status.HTTP_429_TOO_MANY_REQUESTS)
-
-        return Response({"message": "OTP sent to mobile."}, status=status.HTTP_200_OK)
-
-
 class PasswordResetConfirmView(generics.GenericAPIView):
     """
     A view to handle the password reset confirmation.
@@ -113,7 +85,28 @@ class PasswordResetConfirmView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         # Save the new password after successful validation
         serializer.save()
-        return Response({"message": "Password has been reset successfully."})
+        return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+
+
+class ChangeMobileConfirmView(generics.GenericAPIView):
+    """
+    API View for confirming and updating the mobile number of an authenticated user.
+    """
+
+    serializer_class = ChangeMobileConfirmSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Save the new mobile after successful validation
+        serializer.save()
+        return Response({"message": "Mobile has been changed successfully."}, status=status.HTTP_200_OK)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 class FollowViewSet(viewsets.ViewSet):
@@ -130,7 +123,7 @@ class FollowViewSet(viewsets.ViewSet):
         """
         user = request.user
         followers = user.followers.all()
-        following = user.following.all()
+        following = user.followings.all()
         return Response({
             "followers": [f.follower.username for f in followers],
             "following": [f.following.username for f in following]
