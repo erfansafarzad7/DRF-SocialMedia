@@ -88,8 +88,7 @@ class OTPRequestSerializer(serializers.Serializer):
         otp, created = OTPVerification.objects.get_or_create(mobile=validated_data['mobile'])
 
         if otp.valid_delay():
-            otp.code = randint(100000, 999999)
-            otp.save()
+            otp.regenerate_otp()
             otp.send_with_sms()
         else:
             raise serializers.ValidationError({'message': 'Wait Until Delay Ends.'})
@@ -108,10 +107,6 @@ class OTPVerifySerializer(OTPVerificationBaseSerializer):
         )
         self.otp_verification.delete()  # Remove the used OTP instance
         return user
-
-
-class PasswordResetRequestSerializer(serializers.Serializer):
-    mobile = serializers.CharField(max_length=11, validators=[phone_regex])
 
 
 class PasswordResetConfirmSerializer(OTPVerificationBaseSerializer):
@@ -133,9 +128,30 @@ class PasswordResetConfirmSerializer(OTPVerificationBaseSerializer):
         """
         Saves the new password for the user.
         """
-
         user = CustomUser.objects.get(mobile=self.validated_data['mobile'])
         user.set_password(self.validated_data['new_password'])
+        user.save()
+        self.otp_verification.delete()  # Remove the used OTP instance
+        return user
+
+
+class ChangeMobileConfirmSerializer(OTPVerificationBaseSerializer):
+    """
+    Serializer for confirming and updating the mobile number of an authenticated user.
+    """
+
+    def save(self):
+        """
+        Saves the new mobile for the user.
+        """
+        new_mobile = self.validated_data['mobile']
+        user = self.context['request'].user
+
+        # Checking not duplicate
+        if CustomUser.objects.filter(mobile=new_mobile).first():
+            raise serializers.ValidationError({'mobile': 'User with this mobile already exists.'})
+
+        user.mobile = new_mobile
         user.save()
         self.otp_verification.delete()  # Remove the used OTP instance
         return user
