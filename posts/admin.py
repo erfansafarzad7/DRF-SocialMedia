@@ -3,12 +3,18 @@ from .models import Post, Comment, Like, Tag
 from django.utils.html import mark_safe
 
 
+class TagInline(admin.TabularInline):
+    model = Tag.posts.through
+    autocomplete_fields = ['tag']
+
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ('author', 'created_at', 'updated_at', 'image_thumbnail')
     list_filter = ('created_at', 'author')
     search_fields = ('id', 'title', 'content')
     autocomplete_fields = ('author', )
+    inlines = [TagInline]
 
     # show images in admin
     def image_thumbnail(self, obj):
@@ -36,5 +42,5 @@ class LikeAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
-    search_fields = ['name']
+    list_display = ('id', 'name')
+    search_fields = ('name', )

@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, filters
 from rest_framework.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Post, Comment, Like, Tag
+from .models import StatusChoices, Post, Comment, Like, Tag
 from .serializers import PostListSerializer, PostDetailSerializer, CommentSerializer, LikeSerializer, TagSerializer
 from utils.permissions import IsAuthorOrReadOnly
 from .filters import PostFilter
@@ -35,7 +35,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         """
         Override the default queryset to filter only published comments.
         """
-        queryset = Comment.objects.filter(status=1)
+        queryset = Comment.objects.filter(status=StatusChoices.PUBLISHED)
         return queryset.order_by('-created_at')
 
     def perform_create(self, serializer):

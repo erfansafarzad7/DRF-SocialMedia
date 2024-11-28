@@ -5,8 +5,8 @@ User = get_user_model()
 
 
 class StatusChoices:
-    DRAFT = 0
-    PUBLISHED = 1
+    DRAFT = 'draft'
+    PUBLISHED = 'published'
 
     CHOICES = [
         (DRAFT, 'Draft'),
@@ -18,7 +18,7 @@ class Post(models.Model):
     image = models.ImageField(upload_to='posts/')
     caption = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-    status = models.IntegerField(choices=StatusChoices.CHOICES, default=StatusChoices.DRAFT)
+    status = models.CharField(max_length=10, choices=StatusChoices.CHOICES, default=StatusChoices.DRAFT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -30,7 +30,7 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
-    status = models.IntegerField(choices=StatusChoices.CHOICES, default=StatusChoices.DRAFT)
+    status = models.CharField(max_length=10, choices=StatusChoices.CHOICES, default=StatusChoices.DRAFT)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
