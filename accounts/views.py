@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
-from utils.permissions import IsOwnProfile
+from utils import custom_permissions
 from .models import OTPVerification, CustomUser, Notification
 from .serializers import (UserListSerializer, UserDetailSerializer, OTPRequestSerializer, OTPVerifySerializer,
                           PasswordResetConfirmSerializer, FollowSerializer,
@@ -19,7 +19,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
 
     queryset = CustomUser.objects.all().order_by('-created_at')
-    permission_classes = [IsOwnProfile]  # Users only can edit their own profile
+    permission_classes = [custom_permissions.IsOwnProfile]  # Users only can edit their own profile
     filter_backends = [filters.SearchFilter]
     search_fields = ['username', ]  # Fields available for searching
     pagination_class = PageNumberPagination

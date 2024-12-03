@@ -33,9 +33,9 @@ class CustomUserAdmin(BaseUserAdmin):
 
 @admin.register(OTPVerification)
 class OTPVerificationAdmin(admin.ModelAdmin):
-    list_display = ['mobile', 'code', 'created_at']
-    search_fields = ['mobile', 'code']
-    list_filter = ['created_at']
+    list_display = ('mobile', 'code', 'created_at')
+    search_fields = ('mobile', 'code')
+    list_filter = ('created_at', )
 
 
 @admin.register(Follow)
