@@ -1,24 +1,25 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 
-class StatusChoices:
-    DRAFT = 'draft'
-    PUBLISHED = 'published'
+class StatusChoices(models.TextChoices):
+    DRAFT = 'draft', 'Draft'
+    PUBLISHED = 'published', 'Published'
 
-    CHOICES = [
-        (DRAFT, 'Draft'),
-        (PUBLISHED, 'Published'),
-    ]
+
+class ReactionChoices(models.TextChoices):
+    LIKE = 'like', 'Like'
+    DISLIKE = 'dislike', 'Dislike'
 
 
 class Post(models.Model):
     image = models.ImageField(upload_to='posts/')
     caption = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-    status = models.CharField(max_length=10, choices=StatusChoices.CHOICES, default=StatusChoices.DRAFT)
+    status = models.CharField(max_length=10, choices=StatusChoices.choices, default=StatusChoices.DRAFT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -27,34 +28,32 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name="replies", null=True, blank=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
-    status = models.CharField(max_length=10, choices=StatusChoices.CHOICES, default=StatusChoices.DRAFT)
+    status = models.CharField(max_length=10, choices=StatusChoices.choices, default=StatusChoices.DRAFT)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        if self.parent:
+            return f"Reply by '{self.author}' to comment {self.parent.id}"
         return f"Comment by '{self.author}' on '{self.post}'"
 
 
-class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes", null=True, blank=True)
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="likes", null=True, blank=True)
+class Reaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reactions")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="reactions", null=True, blank=True)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="reactions", null=True, blank=True)
+    reaction_type = models.CharField(max_length=10, choices=ReactionChoices.choices)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'post', 'comment')  # A user can like a post or comment only once.
+        unique_together = ('user', 'post', 'comment')  # Each user can react only once to a post or comment.
 
     def __str__(self):
-        if self.post:
-            return f"Like by '{self.user}' on '{self.post}'"
-        return f"Like by '{self.user}' on 'Comment_{self.comment.id}'"
-
-    def save(self, *args, **kwargs):
-        if not (self.post or self.comment):
-            raise ValueError("A like must be associated with either a post or a comment.")
-        super().save(*args, **kwargs)
+        target = self.post if self.post else self.comment
+        return f"{self.reaction_type.capitalize()} by '{self.user}' on '{target}'"
 
 
 class Tag(models.Model):
