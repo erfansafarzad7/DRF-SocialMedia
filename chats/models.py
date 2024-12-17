@@ -31,7 +31,6 @@ class Message(models.Model):
     sender = models.ForeignKey(User, related_name='messages', on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.id)
