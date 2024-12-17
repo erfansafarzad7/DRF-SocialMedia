@@ -113,8 +113,8 @@ class Follow(models.Model):
         following (CustomUser): The user being followed.
         created_at (datetime): The timestamp when the follow relationship was created.
     """
-    follower = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followers")
-    following = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followings")
+    follower = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followings")
+    following = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followers")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
