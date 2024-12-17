@@ -4,8 +4,7 @@ from django.contrib.auth import password_validation
 from django.contrib.auth import get_user_model
 from utils.validators import phone_regex
 from .models import CustomUser, OTPVerification, Follow, Notification
-from random import randint
-
+from utils.online_user_manager import OnlineUserManager
 
 User = get_user_model()
 
@@ -13,6 +12,9 @@ User = get_user_model()
 class UserListSerializer(serializers.ModelSerializer):
     """
     Serializer for listing users.
+
+    This serializer includes additional fields such as 'is_online' to indicate
+    the user's online status and a hyperlink to the user's detail view.
     """
     is_online = serializers.SerializerMethodField()
     user = serializers.HyperlinkedIdentityField(
@@ -32,7 +34,6 @@ class UserDetailSerializer(serializers.ModelSerializer):
     """
     Serializer for detailing user and their posts.
     """
-
     mobile = serializers.SerializerMethodField()
     posts = serializers.HyperlinkedRelatedField(
         many=True,
@@ -59,7 +60,6 @@ class OTPVerificationBaseSerializer(serializers.Serializer):
     A base serializer for handling OTP verification and password reset confirmation.
     Validates the mobile number and OTP, ensuring the OTP is valid and not expired.
     """
-
     mobile = serializers.CharField(max_length=11, validators=[phone_regex])
     otp = serializers.CharField(max_length=6)
 
@@ -71,30 +71,47 @@ class OTPVerificationBaseSerializer(serializers.Serializer):
         otp = data.get('otp')
         mobile = data.get('mobile')
 
+        # Find OTP object
         try:
             otp_verification = OTPVerification.objects.get(mobile=mobile)
         except OTPVerification.DoesNotExist:
-            raise serializers.ValidationError({'mobile': 'Invalid Mobile Number Or OTP.'})
+            raise serializers.ValidationError({
+                'mobile': 'Invalid Mobile Number Or OTP.'
+            })
 
         # Check if the provided OTP is valid and has not expired
         if not otp_verification.is_otp_valid(otp) or not otp.isdigit():
-            raise serializers.ValidationError({'otp': 'Invalid or expired OTP.'})
+            raise serializers.ValidationError({
+                'otp': 'Invalid or expired OTP.'
+            })
 
         self.otp_verification = otp_verification  # Initialize OTP verification instance
         return data
 
 
 class OTPRequestSerializer(serializers.Serializer):
+    """
+    Serializer for handling OTP requests.
+
+    This serializer validates the mobile number and manages OTP generation,
+    ensuring delays are respected before regenerating a new OTP.
+    """
     mobile = serializers.CharField(max_length=11, validators=[phone_regex])
 
     def create(self, validated_data):
+        """
+        Create or update an OTP for the provided mobile number.
+        """
         otp, created = OTPVerification.objects.get_or_create(mobile=validated_data['mobile'])
 
+        # Check if the OTP delay allows regeneration
         if otp.valid_delay():
             otp.regenerate_otp()
             otp.send_with_sms()
         else:
-            raise serializers.ValidationError({'message': 'Wait Until Delay Ends.'})
+            raise serializers.ValidationError({
+                'message': 'Wait Until Delay Ends.'
+            })
 
         return otp
 
@@ -103,7 +120,6 @@ class OTPVerifySerializer(OTPVerificationBaseSerializer):
     """
     Create or return an exist user after verification has been done.
     """
-
     def create(self, validated_data):
         user, created = User.objects.get_or_create(
             mobile=validated_data['mobile']
@@ -117,7 +133,6 @@ class PasswordResetConfirmSerializer(OTPVerificationBaseSerializer):
     Serializer for confirming password reset.
     Inherits from OTPVerificationBaseSerializer and adds a new password field.
     """
-
     new_password = serializers.CharField()
 
     def validate(self, data):
@@ -152,7 +167,9 @@ class ChangeMobileConfirmSerializer(OTPVerificationBaseSerializer):
 
         # Checking not duplicate
         if CustomUser.objects.filter(mobile=new_mobile).first():
-            raise serializers.ValidationError({'mobile': 'User with this mobile already exists.'})
+            raise serializers.ValidationError({
+                'mobile': 'User with this mobile already exists.'
+            })
 
         user.mobile = new_mobile
         user.save()
@@ -161,8 +178,14 @@ class ChangeMobileConfirmSerializer(OTPVerificationBaseSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """
+    Serializer for managing follow relationships between users.
+    """
     follower = serializers.ReadOnlyField(source='follower.username')
-    following = serializers.SlugRelatedField(slug_field="username", queryset=CustomUser.objects.all())
+    following = serializers.SlugRelatedField(
+        slug_field="username",
+        queryset=CustomUser.objects.all()  # Ensure the 'following' user exists
+    )
 
     class Meta:
         model = Follow
@@ -171,6 +194,9 @@ class FollowSerializer(serializers.ModelSerializer):
 
 
 class NotificationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user notifications.
+    """
     class Meta:
         model = Notification
         fields = ['id', 'user', 'message', 'created_at', 'is_read']

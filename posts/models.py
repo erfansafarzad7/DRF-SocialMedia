@@ -6,16 +6,25 @@ User = get_user_model()
 
 
 class StatusChoices(models.TextChoices):
+    """
+    Choices for the status of posts and comments.
+    """
     DRAFT = 'draft', 'Draft'
     PUBLISHED = 'published', 'Published'
 
 
 class ReactionChoices(models.TextChoices):
+    """
+    Choices for the type of reaction to a post or comment.
+    """
     LIKE = 'like', 'Like'
     DISLIKE = 'dislike', 'Dislike'
 
 
 class Post(models.Model):
+    """
+    Represents a post made by a user.
+    """
     image = models.ImageField(upload_to='posts/')
     caption = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
@@ -28,6 +37,11 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    """
+    Represents a comment on a post.
+
+    A comment can be a direct comment or a reply to another comment.
+    """
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name="replies", null=True, blank=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
@@ -42,6 +56,9 @@ class Comment(models.Model):
 
 
 class Reaction(models.Model):
+    """
+    Represents a reaction (like or dislike) to a post or comment.
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reactions")
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="reactions", null=True, blank=True)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="reactions", null=True, blank=True)
@@ -57,6 +74,9 @@ class Reaction(models.Model):
 
 
 class Tag(models.Model):
+    """
+    Tags are used to categorize or label posts. A post can have multiple tags.
+    """
     name = models.CharField(max_length=50, unique=True)
     posts = models.ManyToManyField(Post, related_name="tags")
 

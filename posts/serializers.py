@@ -8,7 +8,6 @@ class CommentSerializer(serializers.ModelSerializer):
     Serializer for comments, including replies and reaction counts (likes/dislikes).
     Handles nested replies and ensures only published comments are retrieved.
     """
-
     author = serializers.ReadOnlyField(source='author.username')
     replies = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
@@ -35,15 +34,42 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ReactionSerializer(serializers.ModelSerializer):
     """
-    Serializer for user reactions (like/dislike) on posts and comments.
-    """
+    Serializer for handling user reactions (like or dislike) on posts and comments.
 
+    This serializer validates and processes user reactions, ensuring that each reaction
+    is either related to a post or a comment (but not both). It also ensures the correct
+    reaction type (like or dislike) is provided.
+    """
     user = serializers.ReadOnlyField(source='user.username')
+    reaction = serializers.ChoiceField(
+        choices=[ReactionChoices.LIKE, ReactionChoices.DISLIKE],
+        write_only=True
+    )
 
     class Meta:
         model = Reaction
-        fields = ['id', 'user', 'post', 'comment', 'reaction_type', 'created_at']
-        read_only_fields = ['user', 'created_at']
+        fields = ['id', 'user', 'post', 'comment', 'reaction_type', 'created_at', 'reaction']
+        read_only_fields = ['user', 'created_at', 'reaction_type']
+
+    def validate(self, data):
+        """
+        Validates that either a post or a comment is provided, but not both.
+        """
+        if (data.get('post') and data.get('comment')) or \
+                (not data.get('post') and not data.get('comment')):
+            raise serializers.ValidationError(
+                "You must provide either a post or a comment, but not both."
+            )
+        return data
+
+    def create(self, validated_data):
+        """
+        Creates a new reaction object with the validated data.
+        """
+        # Extract the reaction type from validated data
+        reaction = validated_data.pop('reaction', None)
+        validated_data['reaction_type'] = reaction
+        return super().create(validated_data)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -59,10 +85,9 @@ class TagSerializer(serializers.ModelSerializer):
 
 class PostListSerializer(serializers.ModelSerializer):
     """
-    Serializer for listing posts with author, tags, and creation details.
-    Includes validation for a maximum of 5 tags during post creation.
+    Serializer for listing posts with details about the author, tags, and creation timestamps.
+    It also validates that a post can have no more than 5 tags.
     """
-
     author_username = serializers.SerializerMethodField()
     author = serializers.HyperlinkedRelatedField(
         view_name='user-detail',
@@ -72,7 +97,7 @@ class PostListSerializer(serializers.ModelSerializer):
     tags = serializers.SlugRelatedField(
         many=True,
         queryset=Tag.objects.all(),
-        slug_field='name',  # Return the name of the tag
+        slug_field='name',  # Retrieve tag name instead of the ID
         required=False
     )
 
@@ -85,6 +110,12 @@ class PostListSerializer(serializers.ModelSerializer):
         return obj.author.username
 
     def create(self, validated_data):
+        """
+        Creates a new post and associates it with tags.
+
+        This method also validates that no more than 5 tags are associated
+        with the post.
+        """
         tags_data = validated_data.pop('tags', [])
         post = Post.objects.create(**validated_data)
         print(tags_data)
@@ -101,9 +132,7 @@ class PostListSerializer(serializers.ModelSerializer):
 class PostDetailSerializer(serializers.ModelSerializer):
     """
     Serializer for detailed post view, including comments, tags, and reaction counts.
-    Handles nested comments and filters only published ones.
     """
-
     author_username = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
@@ -116,7 +145,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     tags = serializers.SlugRelatedField(
         many=True,
         read_only=True,
-        slug_field='name'  # Return the name of the tag
+        slug_field='name'  # Return the name of the tag instead of its ID
     )
 
     class Meta:
@@ -130,7 +159,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
         return obj.author.username
 
     def get_comments(self, obj):
-        published_comments = obj.comments.filter(status=StatusChoices.PUBLISHED)  # Filter published comments
+        # Filter published comments
+        published_comments = obj.comments.filter(
+            status=StatusChoices.PUBLISHED
+        )
         return CommentSerializer(published_comments, many=True).data
 
     def get_likes_count(self, obj):

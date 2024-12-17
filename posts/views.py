@@ -1,28 +1,46 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.mixins import CreateModelMixin
 from rest_framework import viewsets, permissions, filters, generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
-from .models import StatusChoices, ReactionChoices, Post, Comment, Reaction, Tag
-from .serializers import PostListSerializer, PostDetailSerializer, CommentSerializer, ReactionSerializer, TagSerializer
-from utils import custom_permissions
-from .filters import PostFilter
+
+from utils import custom_permissions, custom_filters
+from .models import StatusChoices, Post, Comment, Tag
+from .serializers import (
+    PostListSerializer,
+    PostDetailSerializer,
+    CommentSerializer,
+    ReactionSerializer,
+    TagSerializer
+)
 
 
 class PostViewSet(viewsets.ModelViewSet):
     """
-    A viewset for viewing and editing posts.
-    """
+    A viewset for viewing, creating, updating, and deleting posts.
 
-    queryset = Post.objects.filter(status=StatusChoices.PUBLISHED).order_by('-created_at')
+    - The viewset filters posts to only show published ones.
+    - It provides different serializers for different actions:
+        - `PostListSerializer` for listing posts.
+        - `PostDetailSerializer` for viewing detailed information of a post.
+    - The `perform_create` method ensures that the author of the post is set to the currently authenticated user.
+    """
+    queryset = Post.objects.filter(
+        status=StatusChoices.PUBLISHED  # Only show published posts
+    ).order_by('-created_at')
     permission_classes = [custom_permissions.IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_class = PostFilter  # Connect the filter
+    filterset_class = custom_filters.PostFilter  # Custom filter class for filtering posts
 
     def get_serializer_class(self):
+        """
+        Returns the serializer class based on the action:
+        - For 'retrieve' action, it returns PostDetailSerializer.
+        - For other actions like 'create' or 'update', it returns PostListSerializer.
+        """
         if self.action == 'retrieve':
             return PostDetailSerializer
         return PostListSerializer  # Fallback or for other actions like create/update
@@ -31,34 +49,53 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class CommentCreateView(generics.GenericAPIView, CreateModelMixin):
+class CommentCreateView(CreateModelMixin, generics.GenericAPIView):
     """
     View for creating a new comment and adding replies to existing comments.
-    """
 
-    queryset = Comment.objects.filter(status=StatusChoices.PUBLISHED).order_by('-created_at')
+    It checks whether the user has already commented on the post
+    and enforces the requirement of a `post_id` for creating comments.
+
+    If a comment is a reply, it links the comment to its parent.
+    The view also enforces user authentication or read-only permissions.
+    """
+    queryset = Comment.objects.filter(
+        status=StatusChoices.PUBLISHED  # Query only published comments
+    ).order_by('-created_at')
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         """
-        Handle comment creation with optional reply functionality.
-        Check if the user has already commented on the post before saving.
-        If the comment is a reply, set the parent.
+        Handles the comment creation logic, including:
+        - Ensuring a `post_id` is provided.
+        - Handling replies by setting the `parent` field if a `parent_id` is provided.
+        - Check if the user has already commented on the post before saving.
         """
         parent_id = self.request.data.get("parent_id")
         post_id = self.request.data.get("post_id")
         user = self.request.user
 
+        # Ensure a post ID is provided
         if not post_id:
-            raise ValidationError({"post_id": "This field is required."})
+            raise ValidationError({
+                "post_id": "This field is required."
+            })
 
+        # If there's a reply comment, find it and set it as the parent
         if parent_id:
             parent_comment = get_object_or_404(Comment, id=parent_id)
-            serializer.save(parent=parent_comment, author=user, post_id=post_id)
+            serializer.save(
+                parent=parent_comment,
+                author=user,
+                post_id=post_id
+            )
         else:
             # Save as a normal comment if there's no parent
-            serializer.save(author=user, post_id=post_id)
+            serializer.save(
+                author=user,
+                post_id=post_id
+            )
 
         return super().perform_create(serializer)
 
@@ -75,72 +112,73 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, custom_permissions.IsAuthorOrReadOnly]
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly,
+        custom_permissions.IsAuthorOrReadOnly
+    ]
 
 
 class ReactionToggleView(APIView):
     """
-    View to toggle like/dislike for a post or comment.
-    """
+    View for toggling user reactions (like/dislike) on posts or comments.
 
+    This view allows users to:
+    - Add a reaction to a post or comment (like/dislike).
+    - Remove a reaction if the user clicks on the same reaction again.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
+        """
+        Handle POST requests for adding, updating, or removing a reaction.
+
+        1. Validate the incoming reaction data using the `ReactionSerializer`.
+        2. Check if the user has already reacted to the post or comment.
+        3. If the reaction exists and matches the new one, remove it.
+        4. If the reaction type is different, update the existing reaction.
+        5. If no existing reaction, create a new one.
+        """
+        serializer = ReactionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
         user = request.user
-        request_reaction_type = request.data.get('reaction')
-        post_id = request.data.get('post_id')
-        comment_id = request.data.get('comment_id')
 
-        # Validate input
-        if not request_reaction_type or request_reaction_type not in [ReactionChoices.LIKE, ReactionChoices.DISLIKE]:
-            return Response({"reaction": "Invalid reaction type. Use 'like' or 'dislike'."},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if not post_id and not comment_id:
-            return Response({"message": "You must provide either a post ID or a comment ID."},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if post_id and comment_id:
-            return Response({"message": "You cannot react to post and comment at same time."},
-                            status.HTTP_400_BAD_REQUEST)
+        # Check if the user has already reacted to this post or comment
+        user_reaction = user.reactions.filter(
+            Q(post=data.get('post')) | Q(comment=data.get('comment'))
+        ).first()
 
-        # Check for existing reaction
-        user_reactions = user.reactions.filter(Q(post_id=post_id) | Q(comment_id=comment_id)).first()
+        #
+        if user_reaction:
+            # If the reaction matches the new one, remove it
+            if user_reaction.reaction_type == data['reaction']:
+                user_reaction.delete()
 
-        if user_reactions:  # If user has reacted before
+                return Response({
+                    "message": "Reaction removed."
+                }, status=status.HTTP_200_OK)
 
-            if user_reactions.reaction_type == request_reaction_type:
-                # If the same reaction exists, delete it
-                user_reactions.delete()
-                return Response({"message": f"{request_reaction_type.capitalize()} removed."},
-                                status=status.HTTP_200_OK)
-            else:
-                # Update the reaction type
-                user_reactions.reaction_type = request_reaction_type
-                user_reactions.save()
-                return Response({"message": f"Reaction updated to {request_reaction_type}."},
-                                status=status.HTTP_200_OK)
+            # If the reaction is different, update the existing one
+            user_reaction.reaction_type = data['reaction']
+            user_reaction.save()
 
-        else:
-            # Create a new reaction
-            try:
-                reaction = Reaction.objects.create(
-                    user=user,
-                    post_id=post_id,
-                    comment_id=comment_id,
-                    reaction_type=request_reaction_type
-                )
+            return Response({
+                "message": "Reaction updated."
+            }, status=status.HTTP_200_OK)
 
-                serializer = ReactionSerializer(reaction)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-            except ValueError as e:
-                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        # If no existing reaction, create a new one
+        reaction = serializer.save(user=user)
+        return Response(
+            ReactionSerializer(reaction).data,
+            status=status.HTTP_201_CREATED
+        )
 
 
 class TagView(generics.ListAPIView):
     """
-    View to retrieve all tags with filtering.
+    View to retrieve all tags.
+    Also, can filter by tags name.
     """
-
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]

@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from .models import Post, Tag
+from posts.models import Post
 
 
 class PostFilter(filters.FilterSet):

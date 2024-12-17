@@ -1,9 +1,15 @@
 from rest_framework import permissions
+from django.shortcuts import get_object_or_404
+from chats.models import Chat
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow authors of a post to edit or delete it.
+
+    This permission checks if the user making the request is the author of the post.
+    - For read-only methods (GET, HEAD, OPTIONS), the permission is always granted.
+    - For modifying methods (PUT, PATCH, DELETE), only the author of the post is allowed to proceed.
     """
 
     def has_object_permission(self, request, view, obj):
@@ -18,12 +24,11 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
 class IsOwnProfile(permissions.BasePermission):
     """
     Custom permission to only allow users to edit their own profile.
-    and
     """
 
     def has_object_permission(self, request, view, obj):
-        # Allow GET, HEAD, or OPTIONS requests (read-only)
-        if request.method in ['GET', 'HEAD', 'OPTIONS']:
+        # If the request is a read-only method, allow access
+        if request.method in permissions.SAFE_METHODS:
             return True
 
         # Allow users to edit their own profile only

@@ -19,10 +19,17 @@ class CustomUserAdmin(BaseUserAdmin):
     inlines = [NotificationsInline]
 
     fieldsets = (
-        (None, {'fields': ('mobile', 'username', 'password')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login',)}),
+        (None, {
+            'fields': ('mobile', 'username', 'password')
+        }),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
+        }),
+        ('Important dates', {
+            'fields': ('last_login',)
+        }),
     )
+
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
