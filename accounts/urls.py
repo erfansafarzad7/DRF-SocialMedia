@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from .views import (
     UserViewSet,
+    ProfileView,
     OTPRequestView,
     OTPVerifyView,
     PasswordResetConfirmView,
@@ -21,6 +22,8 @@ unfollow = FollowViewSet.as_view({'delete': 'delete'})
 urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    path('profile/', ProfileView.as_view(), name='profile'),
 
     path('otp-request/', OTPRequestView.as_view(), name='otp_request'),
     path('otp-verify/', OTPVerifyView.as_view(), name='otp_verify'),

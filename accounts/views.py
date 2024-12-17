@@ -45,6 +45,20 @@ class UserViewSet(viewsets.ModelViewSet):
         return context
 
 
+class ProfileView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserDetailSerializer
+    permission_classes = [custom_permissions.IsOwnProfile]
+
+    def get_object(self):
+        return self.request.user
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+
 class OTPRequestView(APIView):
     """
     View to send an OTP to the user's mobile number.

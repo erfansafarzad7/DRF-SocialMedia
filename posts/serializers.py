@@ -1,4 +1,3 @@
-from django.db.models import Count, Q
 from rest_framework import serializers
 from .models import StatusChoices, Post, Comment, Reaction, Tag, ReactionChoices
 

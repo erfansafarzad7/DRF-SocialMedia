@@ -9,7 +9,7 @@ from utils.online_user_manager import OnlineUserManager
 from accounts.serializers import UserListSerializer
 from utils import custom_permissions
 from .models import Chat, Message
-from .serializers import ChatSerializer, MessageSerializer
+from .serializers import ChatSerializer, ChatEditSerializer, MessageSerializer
 
 User = get_user_model()
 
@@ -112,6 +112,32 @@ class ChatDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Chat.objects.filter(members=self.request.user)
+
+
+class ChatEditView(generics.UpdateAPIView):
+    """
+    View to edit chat details, manage members, and delete chats.
+
+    Supports:
+    - Adding new members
+    - Removing members
+    - Updating chat name or other details
+    - Deleting the chat
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ChatEditSerializer
+
+    def get_queryset(self):
+        # Ensure user can only edit chats they are a member of
+        return Chat.objects.filter(members=self.request.user)
+
+    def perform_destroy(self, instance):
+        # Custom delete method to ensure only chat members can delete
+        if self.request.user not in instance.members.all():
+            raise PermissionDenied({
+                'message': 'You are not authorized to delete this chat.'
+            })
+        instance.delete()
 
 
 class ChatMessagesView(generics.ListAPIView):
