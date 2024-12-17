@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'django_filters',
     'channels',
+    'graphene_django',
 
     'accounts.apps.AccountsConfig',
     'posts.apps.PostsConfig',
@@ -190,4 +191,8 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
     'ALGORITHM': 'HS256',
+}
+
+GRAPHENE = {
+    'SCHEMA': 'social_media_project.schema.schema'
 }

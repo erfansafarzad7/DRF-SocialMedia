@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from graphene_django.views import GraphQLView
 
 
 urlpatterns = [
@@ -25,6 +26,7 @@ urlpatterns = [
     path('api/auth/', include('accounts.urls')),
     path('api/', include('posts.urls')),
     path('api/chats/', include('chats.urls')),
+    path('graphql/', GraphQLView.as_view(graphiql=True)),
 ]
 
 if settings.DEBUG:
