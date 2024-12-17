@@ -14,7 +14,7 @@ class UserListSerializer(serializers.ModelSerializer):
     """
     Serializer for listing users.
     """
-
+    is_online = serializers.SerializerMethodField()
     user = serializers.HyperlinkedIdentityField(
         view_name='user-detail',
         lookup_field='username',
@@ -22,7 +22,10 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'user', 'created_at']
+        fields = ['id', 'username', 'user', 'is_online', 'created_at']
+
+    def get_is_online(self, obj):
+        return OnlineUserManager.is_user_online(obj.id)
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
