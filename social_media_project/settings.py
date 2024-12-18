@@ -174,6 +174,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
+# Rest-Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -182,6 +183,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
+# SimpleJWT settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
@@ -193,6 +195,13 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
 }
 
+# GraphQL settings
 GRAPHENE = {
     'SCHEMA': 'social_media_project.schema.schema'
 }
+
+# Celery settings
+# CELERY_BROKER_URL = 'redis://localhost:6379'  # Redis
+CELERY_BROKER_URL = 'pyamqp://guest@localhost//'  # RabbitMQ
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'

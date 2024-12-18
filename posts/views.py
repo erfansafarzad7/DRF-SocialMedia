@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .tasks import notify_followers
 from .permissions import IsAuthorOrReadOnly
 from .filters import PostFilter
 from .models import StatusChoices, Post, Comment, Tag
@@ -28,6 +29,7 @@ class PostViewSet(viewsets.ModelViewSet):
         - `PostListSerializer` for listing posts.
         - `PostDetailSerializer` for viewing detailed information of a post.
     - The `perform_create` method ensures that the author of the post is set to the currently authenticated user.
+        - notify all author followers for new post.
     """
     queryset = Post.objects.filter(
         status=StatusChoices.PUBLISHED  # Only show published posts
@@ -47,7 +49,8 @@ class PostViewSet(viewsets.ModelViewSet):
         return PostListSerializer  # Fallback or for other actions like create/update
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        new_post = serializer.save(author=self.request.user)
+        notify_followers.delay(new_post.id)  # Notify user followers for new post, using celery
 
 
 class CommentCreateView(CreateModelMixin, generics.GenericAPIView):

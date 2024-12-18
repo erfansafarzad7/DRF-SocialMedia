@@ -116,16 +116,21 @@ class PostListSerializer(serializers.ModelSerializer):
         with the post.
         """
         tags_data = validated_data.pop('tags', [])
-        post = Post.objects.create(**validated_data)
-        print(tags_data)
-        if len(tags_data) > 5:
-            raise serializers.ValidationError({'tags': 'Too many tags. it must be less or equal 5 tags.'})
 
+        if len(tags_data) > 5:
+            raise serializers.ValidationError({
+                'tags': 'Too many tags. it must be less or equal 5 tags.'
+            })
+
+        # Create new post
+        new_post = Post.objects.create(**validated_data)
+
+        # Set tags on post
         for tag_name in tags_data:
             tag = Tag.objects.get(name=tag_name)
-            post.tags.add(tag)
+            new_post.tags.add(tag)
 
-        return post
+        return new_post
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
