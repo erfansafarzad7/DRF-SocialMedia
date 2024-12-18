@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from utils import custom_permissions
+from .permissions import IsOwnProfile
 from .models import CustomUser, Notification
 from .serializers import (
     UserListSerializer,
@@ -25,7 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
     Create and Delete are not allowed.
     """
     queryset = CustomUser.objects.all().order_by('-created_at')
-    permission_classes = [custom_permissions.IsOwnProfile]  # Users only can edit their own profile
+    permission_classes = [IsOwnProfile]  # Users only can edit their own profile
     filter_backends = [filters.SearchFilter]
     search_fields = ['username', ]  # Fields available for searching
     pagination_class = PageNumberPagination
@@ -48,7 +48,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class ProfileView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserDetailSerializer
-    permission_classes = [custom_permissions.IsOwnProfile]
+    permission_classes = [IsOwnProfile]
 
     def get_object(self):
         return self.request.user

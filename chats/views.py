@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 
 from utils.online_user_manager import OnlineUserManager
 from accounts.serializers import UserListSerializer
-from utils import custom_permissions
+from .permissions import IsChatMemberPermission
 from .models import Chat, Message
 from .serializers import ChatSerializer, ChatEditSerializer, MessageSerializer
 
@@ -148,7 +148,7 @@ class ChatMessagesView(generics.ListAPIView):
     """
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated,
-                          custom_permissions.IsChatMemberPermission
+                          IsChatMemberPermission
                           ]
 
     def get_queryset(self):

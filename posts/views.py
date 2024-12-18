@@ -1,13 +1,14 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.mixins import CreateModelMixin
 from rest_framework import viewsets, permissions, filters, generics, status
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from utils import custom_permissions, custom_filters
+from .permissions import IsAuthorOrReadOnly
+from .filters import PostFilter
 from .models import StatusChoices, Post, Comment, Tag
 from .serializers import (
     PostListSerializer,
@@ -31,9 +32,9 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.filter(
         status=StatusChoices.PUBLISHED  # Only show published posts
     ).order_by('-created_at')
-    permission_classes = [custom_permissions.IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_class = custom_filters.PostFilter  # Custom filter class for filtering posts
+    filterset_class = PostFilter  # Custom filter class for filtering posts
 
     def get_serializer_class(self):
         """
@@ -114,7 +115,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentSerializer
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly,
-        custom_permissions.IsAuthorOrReadOnly
+        IsAuthorOrReadOnly
     ]
 
 
