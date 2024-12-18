@@ -20,11 +20,6 @@ def generate_random_code():
 class OTPVerification(models.Model):
     """
     Model to store OTP (One-Time Password) for user authentication.
-
-    Attributes:
-        mobile (str): The mobile number associated with the OTP.
-        code (str): A 6-digit OTP code used for verification.
-        created_at (datetime): The timestamp when the OTP was created.
     """
     mobile = models.CharField(_('Mobile Number'), max_length=11, validators=[phone_regex], unique=True)
     code = models.CharField(_('One Time Password'), max_length=6, default=generate_random_code())
@@ -67,17 +62,6 @@ class OTPVerification(models.Model):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
     Custom user model that uses mobile number as the unique identifier.
-
-    Attributes:
-        username (str): A unique username for the user.
-        mobile (str): A unique mobile number used for authentication.
-        is_active (bool): Indicates whether the user account is active.
-        is_staff (bool): Determines if the user has staff privileges.
-        created_at (date): The date when the user account was created.
-
-    Class Attributes:
-        USERNAME_FIELD (str): Specifies 'mobile' as the unique identifier for authentication instead of 'username'.
-        objects (CustomUserManager): The manager for handling user creation.
     """
     username = models.CharField(_('Username'), max_length=30, default=generate_random_username, unique=True)
     mobile = models.CharField(_('Mobile Number'), max_length=11, validators=[phone_regex, ], unique=True)
@@ -107,11 +91,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class Follow(models.Model):
     """
     Model representing a "follow" relationship between users.
-
-    Attributes:
-        follower (CustomUser): The user who is following another user.
-        following (CustomUser): The user being followed.
-        created_at (datetime): The timestamp when the follow relationship was created.
     """
     follower = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followings")
     following = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followers")
@@ -127,17 +106,10 @@ class Follow(models.Model):
 class Notification(models.Model):
     """
     Model to store notifications for users.
-
-    Attributes:
-        user (CustomUser): The user who receives the notification.
-        message (str): The notification message content.
-        created_at (datetime): The timestamp when the notification was created.
-        is_read (bool): Indicates whether the notification has been read.
     """
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(_('Is Read'), default=False)
 
     def __str__(self):
         return f"Notification for {self.user.username}"
