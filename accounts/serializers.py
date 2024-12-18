@@ -120,6 +120,7 @@ class OTPVerifySerializer(OTPVerificationBaseSerializer):
     """
     Create or return an exist user after verification has been done.
     """
+
     def create(self, validated_data):
         user, created = User.objects.get_or_create(
             mobile=validated_data['mobile']
@@ -197,6 +198,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     """
     Serializer for user notifications.
     """
+
     class Meta:
         model = Notification
-        fields = ['id', 'user', 'message', 'created_at']
+        fields = ['id', 'message', 'created_at']

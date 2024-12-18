@@ -4,7 +4,7 @@ from .models import CustomUser, OTPVerification, Follow, Notification
 
 
 class NotificationsInline(admin.TabularInline):
-    model = Notification
+    model = Notification.target_users.through
     extra = 0
 
 
@@ -56,6 +56,6 @@ class FollowAdmin(admin.ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'message', 'is_read']
-    list_filter = ['is_read', 'user', 'created_at']
-    autocomplete_fields = ['user']
+    list_display = ['id', 'created_at']
+    list_filter = ['created_at']
+    autocomplete_fields = ['target_users', ]

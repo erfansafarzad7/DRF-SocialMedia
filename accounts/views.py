@@ -226,4 +226,4 @@ class NotificationView(generics.ListAPIView):
         Override the default queryset to filter notifications by the current user.
         """
         user = self.request.user
-        return Notification.objects.filter(user=user).first()
+        return user.notifications.all()

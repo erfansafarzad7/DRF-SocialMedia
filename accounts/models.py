@@ -107,9 +107,9 @@ class Notification(models.Model):
     """
     Model to store notifications for users.
     """
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
+    target_users = models.ManyToManyField(CustomUser, related_name="notifications")
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Notification for {self.user.username}"
+        return f"Notification ID: {self.id}"
