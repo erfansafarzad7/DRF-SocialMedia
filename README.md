@@ -1,7 +1,8 @@
 # Django Social Media Project
 
-**A sample social media platform built with Django to showcase clean coding and advanced integrations for resume purposes.
-The project includes features for user management, real-time chat, and post management.**
+**This project is a sample social media platform built with Django, designed to demonstrate clean coding and advanced web development techniques.
+The application showcases skills in integrating modern tools like `Django REST Framework`, `GraphQL`, `WebSocket`, and `Docker`.
+It features core functionalities for `User Management`, `Real-Time Chat`, and `Post Interactions`, making it a comprehensive portfolio project.**
 
 </br>
 
