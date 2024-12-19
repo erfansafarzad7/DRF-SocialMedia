@@ -16,7 +16,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'social_media_project.settings')
 django.setup()
 
 from chats.routing import websocket_urlpatterns
-from utils.jwt_auth_middleware import JWTAuthMiddleware
+from .jwt_auth_middleware import JWTAuthMiddleware
 
 
 application = ProtocolTypeRouter({
