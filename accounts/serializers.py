@@ -135,22 +135,48 @@ class PasswordResetConfirmSerializer(OTPVerificationBaseSerializer):
     Inherits from OTPVerificationBaseSerializer and adds a new password field.
     """
     new_password = serializers.CharField()
+    old_password = serializers.CharField()
+
+    def get_user(self):
+        """
+        Retrieves the user based on the provided mobile number.
+        """
+        user = CustomUser.objects.filter(
+            mobile=self.validated_data['mobile']
+        ).first()
+
+        if not user:
+            raise serializers.ValidationError({
+                "mobile": "User not found."
+            })
+
+        return user
 
     def validate(self, data):
         data = super().validate(data)  # Validate OTP and mobile
+        user = self.get_user()  # Use the function to get the user
 
         # Validate the entered password
         password_validation.validate_password(data['new_password'])
+
+        # Validate old password
+        if not user.check_password(data['old_password']):
+            raise serializers.ValidationError({
+                "old_password": "The old password is incorrect."
+            })
+
         return data
 
     def save(self):
         """
         Saves the new password for the user.
         """
-        user = CustomUser.objects.get(mobile=self.validated_data['mobile'])
+        user = self.get_user()  # Use the function to get the user
+
         user.set_password(self.validated_data['new_password'])
         user.save()
         self.otp_verification.delete()  # Remove the used OTP instance
+
         return user
 
 
