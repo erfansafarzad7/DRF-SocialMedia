@@ -9,7 +9,8 @@ def create_follow_notification(sender, instance, created, **kwargs):
     Signal to create a notification when a user follows another user.
     """
     if created:  # Only for new follow relationships
-        Notification.objects.create(
-            user=instance.following,  # The user being followed
+        notif = Notification.objects.create(
             message=f"{instance.follower.username} has started following you."
         )
+        notif.target_users.add(instance.following)
+        notif.save()

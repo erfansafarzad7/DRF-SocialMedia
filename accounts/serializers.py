@@ -159,12 +159,12 @@ class PasswordResetConfirmSerializer(OTPVerificationBaseSerializer):
     new_password = serializers.CharField()
     old_password = serializers.CharField()
 
-    def get_user(self):
+    def get_user(self, data):
         """
         Retrieves the user based on the provided mobile number.
         """
         user = CustomUser.objects.filter(
-            mobile=self.validated_data['mobile']
+            mobile=data['mobile']
         ).first()
 
         if not user:
@@ -176,7 +176,7 @@ class PasswordResetConfirmSerializer(OTPVerificationBaseSerializer):
 
     def validate(self, data):
         data = super().validate(data)  # Validate OTP and mobile
-        user = self.get_user()  # Use the function to get the user
+        user = self.get_user(data)  # Use the function to get the user
 
         # Validate the entered password
         password_validation.validate_password(data['new_password'])
@@ -193,7 +193,7 @@ class PasswordResetConfirmSerializer(OTPVerificationBaseSerializer):
         """
         Saves the new password for the user.
         """
-        user = self.get_user()  # Use the function to get the user
+        user = self.get_user(self.validated_data)  # Use the function to get the user
 
         user.set_password(self.validated_data['new_password'])
         user.save()

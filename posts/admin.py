@@ -45,3 +45,4 @@ class ReactionAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     search_fields = ('name', )
+    autocomplete_fields = ('posts', )
