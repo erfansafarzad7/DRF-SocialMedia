@@ -120,11 +120,33 @@ class OTPVerifySerializer(OTPVerificationBaseSerializer):
     """
     Create or return an exist user after verification has been done.
     """
+    password = serializers.CharField(
+        required=False,
+        min_length=8,
+        write_only=True
+    )
 
     def create(self, validated_data):
-        user, created = User.objects.get_or_create(
-            mobile=validated_data['mobile']
-        )
+        password = validated_data.get('password', '')
+        mobile = validated_data.get('mobile')
+
+        # Find user
+        user = User.objects.filter(
+            mobile=mobile
+        ).first()
+
+        # if it's new user
+        if not user:
+            if not password:  # Ensure user enters password
+                raise serializers.ValidationError({
+                    'password': 'Set password for registration!'
+                })
+
+            user = CustomUser.objects.create_user(
+                mobile=mobile,
+                password=password
+            )
+
         self.otp_verification.delete()  # Remove the used OTP instance
         return user
 
