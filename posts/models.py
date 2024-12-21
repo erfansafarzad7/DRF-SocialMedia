@@ -78,7 +78,7 @@ class Tag(models.Model):
     Tags are used to categorize or label posts. A post can have multiple tags.
     """
     name = models.CharField(max_length=50, unique=True)
-    posts = models.ManyToManyField(Post, related_name="tags", null=True, blank=True)
+    posts = models.ManyToManyField(Post, related_name="tags", blank=True)
 
     def __str__(self):
         return self.name
