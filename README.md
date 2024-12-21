@@ -61,7 +61,94 @@ It features core functionalities for `User Management`, `Real-Time Chat`, and `P
 
 ## Usage
 - Import the provided Postman collection for testing the APIs.
-- Explore the functionalities via endpoints or GraphQL playground for posts and tagging.
+
+---
+</br>
+
+# API Examples
+
+### Get All Users:
+
+**Request:**
+```http
+GET /api/auth/users/ HTTP/1.1
+Host: 127.0.0.1:8000
+```
+**Response:**
+```json
+{
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "username": "User_1734715732",
+            "user": "http://127.0.0.1:8000/api/auth/users/User_1734715732/",
+            "is_online": false,
+            "created_at": "2024-12-20"
+        }
+    ]
+}
+```
+
+### Register New User:
+**Note: first of all you nedd to send an otp-code to mobile number using this path:**
+
+**Request for generate otp:**
+```http
+POST /api/auth/otp-request/ HTTP/1.1
+Host: 127.0.0.1:8000
+Content-Type: multipart/form-data
+
+mobile=1234567890
+```
+**Response:**
+```json
+{
+    "message": "OTP sent successfully!"
+}
+```
+
+**Then:**
+
+**Request for confirm otp:**
+```http
+POST /api/auth/otp-verify/ HTTP/1.1
+Host: 127.0.0.1:8000
+Content-Type: multipart/form-data
+
+mobile=09000000000
+otp=123456
+password=12345678
+```
+
+**Response:**
+```json
+{
+    "access": "your_access_token",
+    "refresh": "your_refresh_token"
+}
+```
+
+### Your Profile:
+
+**Request:**
+```http
+GET /api/auth/profile/ HTTP/1.1
+Host: 127.0.0.1:8000
+Authorization: Bearer <your_access_token>
+```
+**Response:**
+```json
+{
+    "id": 1,
+    "username": "username",
+    "mobile": "09000000000",
+    "posts": [],
+    "created_at": "2024-12-21"
+}
+```
 
 ---
 </br>
@@ -69,8 +156,6 @@ It features core functionalities for `User Management`, `Real-Time Chat`, and `P
 ## Future Enhancements
 - Deployment of a live demo version.
 
----
-</br>
 
 ## Contact Info
 - LinkedIn: [https://www.linkedin.com/in/erfansafarzad7]
