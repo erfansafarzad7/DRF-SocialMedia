@@ -40,7 +40,79 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "All Users",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/users/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"users",
+										""
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "username",
+											"description": "serach user by username",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"count\": 6,\r\n    \"next\": null,\r\n    \"previous\": null,\r\n    \"results\": [\r\n        {\r\n            \"id\": 2,\r\n            \"username\": \"User_1734790418\",\r\n            \"user\": \"http://127.0.0.1:8000/api/auth/users/User_1734790418/\",\r\n            \"is_online\": false,\r\n            \"created_at\": \"2024-12-21\"\r\n        },\r\n        {\r\n            \"id\": 3,\r\n            \"username\": \"User_1734786082\",\r\n            \"user\": \"http://127.0.0.1:8000/api/auth/users/User_1734786082/\",\r\n            \"is_online\": false,\r\n            \"created_at\": \"2024-12-21\"\r\n        },\r\n        {\r\n            \"id\": 4,\r\n            \"username\": \"User_1734794625\",\r\n            \"user\": \"http://127.0.0.1:8000/api/auth/users/User_1734794625/\",\r\n            \"is_online\": false,\r\n            \"created_at\": \"2024-12-21\"\r\n        },\r\n        {\r\n            \"id\": 5,\r\n            \"username\": \"User_1734792878\",\r\n            \"user\": \"http://127.0.0.1:8000/api/auth/users/User_1734792878/\",\r\n            \"is_online\": false,\r\n            \"created_at\": \"2024-12-21\"\r\n        },\r\n        {\r\n            \"id\": 6,\r\n            \"username\": \"User_1734786689\",\r\n            \"user\": \"http://127.0.0.1:8000/api/auth/users/User_1734786689/\",\r\n            \"is_online\": false,\r\n            \"created_at\": \"2024-12-21\"\r\n        },\r\n        {\r\n            \"id\": 1,\r\n            \"username\": \"User_1734715732\",\r\n            \"user\": \"http://127.0.0.1:8000/api/auth/users/User_1734715732/\",\r\n            \"is_online\": false,\r\n            \"created_at\": \"2024-12-20\"\r\n        }\r\n    ]\r\n}"
+						},
+						{
+							"name": "All Users-with search",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/users/?search=User_1734786082",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"users",
+										""
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "User_1734786082",
+											"description": "serach user by username"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"count\": 1,\r\n    \"next\": null,\r\n    \"previous\": null,\r\n    \"results\": [\r\n        {\r\n            \"id\": 3,\r\n            \"username\": \"User_1734786082\",\r\n            \"user\": \"http://127.0.0.1:8000/api/auth/users/User_1734786082/\",\r\n            \"is_online\": false,\r\n            \"created_at\": \"2024-12-21\"\r\n        }\r\n    ]\r\n}"
+						}
+					]
 				},
 				{
 					"name": "User Profile",
@@ -49,7 +121,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"value": "Bearer <your_token>",
 								"type": "text"
 							}
 						],
@@ -70,9 +142,46 @@
 								"{username}",
 								""
 							]
-						}
+						},
+						"description": "Retrieve details of a specific userEndFragment"
 					},
-					"response": []
+					"response": [
+						{
+							"name": "User Profile",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <your_token>",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/users/User_1734715732/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"users",
+										"User_1734715732",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"id\": 1,\r\n    \"username\": \"User_1734715732\",\r\n    \"mobile\": null,\r\n    \"posts\": [\r\n        \"http://127.0.0.1:8000/api/posts/1/\"\r\n    ],\r\n    \"created_at\": \"2024-12-20\"\r\n}"
+						}
+					]
 				},
 				{
 					"name": "My Profile",
@@ -81,7 +190,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3MDU1NTE2LCJpYXQiOjE3MzQ0NjM1MTYsImp0aSI6IjJlNTU1MTQ1MWExZTRkOTFiYTE4OTRmNGNjYzNhMjEzIiwidXNlcl9pZCI6Mn0.PksOsImDQWgffepNEkggbKzhFanj_B-7XaYalx-jsso",
+								"value": "Bearer <your_token>",
 								"type": "text"
 							}
 						],
@@ -101,9 +210,45 @@
 								"profile",
 								""
 							]
-						}
+						},
+						"description": "Retrieve details of the currently authenticated userEndFragment"
 					},
-					"response": []
+					"response": [
+						{
+							"name": "My Profile",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <your_token>",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/profile/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"profile",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"id\": 6,\r\n    \"username\": \"User_1734786689\",\r\n    \"mobile\": \"09000000000\",\r\n    \"posts\": [\r\n        \"http://127.0.0.1:8000/api/posts/4/\"\r\n    ],\r\n    \"created_at\": \"2024-12-21\"\r\n}"
+						}
+					]
 				},
 				{
 					"name": "Edit User",
@@ -112,7 +257,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"value": "Bearer <your_token>",
 								"type": "text"
 							}
 						],
@@ -145,7 +290,221 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Edit User",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <your_token>",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "username",
+											"value": "new_username",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/users/User_1734786689/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"users",
+										"User_1734786689",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"id\": 6,\r\n    \"username\": \"new_username\",\r\n    \"mobile\": \"09000000000\",\r\n    \"posts\": [\r\n        \"http://127.0.0.1:8000/api/posts/4/\"\r\n    ],\r\n    \"created_at\": \"2024-12-21\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "OTP Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "mobile",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/auth/otp-request/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"auth",
+								"otp-request",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "OTP Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "mobile",
+											"value": "09000000000",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/otp-request/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"otp-request",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"OTP sent successfully!\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Register/Login OTP Verify",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "mobile",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "otp",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/auth/otp-verify/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"auth",
+								"otp-verify",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Register/Login OTP Verify",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "mobile",
+											"value": "09000000000",
+											"type": "text"
+										},
+										{
+											"key": "otp",
+											"value": "123456",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "12345678",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/otp-verify/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"otp-verify",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"access\": \"your_access_token\",\r\n    \"refresh\": \"your_refresh_token\"\r\n}"
+						}
+					]
 				},
 				{
 					"name": "Login",
@@ -185,82 +544,51 @@
 							]
 						}
 					},
-					"response": []
-				},
-				{
-					"name": "OTP Request",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "mobile",
-									"value": "",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "http://127.0.0.1:8000/api/auth/otp-request/",
-							"protocol": "http",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"auth",
-								"otp-request",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Register/Login OTP Verify",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "mobile",
-									"value": "",
-									"type": "text"
+					"response": [
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "mobile",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "",
+											"type": "text"
+										}
+									]
 								},
-								{
-									"key": "otp",
-									"value": "",
-									"type": "text"
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/token/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"token",
+										""
+									]
 								}
-							]
-						},
-						"url": {
-							"raw": "http://127.0.0.1:8000/api/auth/otp-verify/",
-							"protocol": "http",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"auth",
-								"otp-verify",
-								""
-							]
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"access\": \"your_access_token\",\r\n    \"refresh\": \"your_refresh_token\"\r\n}"
 						}
-					},
-					"response": []
+					]
 				},
 				{
 					"name": "Password Reset Confirm",
@@ -311,7 +639,62 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Password Reset Confirm",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "mobile",
+											"value": "09000000000",
+											"type": "text"
+										},
+										{
+											"key": "otp",
+											"value": "123456",
+											"type": "text"
+										},
+										{
+											"key": "new_password",
+											"value": "your_new_pass",
+											"type": "text"
+										},
+										{
+											"key": "old_password",
+											"value": "your_old_pass",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/password-reset/confirm/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"password-reset",
+										"confirm",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Password has been reset successfully.\"\r\n}"
+						}
+					]
 				},
 				{
 					"name": "Change Mobile Confirm",
@@ -320,7 +703,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"value": "Bearer <your_token>",
 								"type": "text"
 							}
 						],
@@ -330,12 +713,13 @@
 								{
 									"key": "mobile",
 									"value": "",
-									"description": "new mobile number",
+									"description": "fill the new mobile number (old was 09000000000)",
 									"type": "text"
 								},
 								{
 									"key": "otp",
 									"value": "",
+									"description": "send otp to new phone number and enter here",
 									"type": "text"
 								}
 							]
@@ -359,7 +743,60 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Change Mobile Confirm",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <your_token>",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "mobile",
+											"value": "09000000001",
+											"description": "fill the new mobile number (old was 09000000000)",
+											"type": "text"
+										},
+										{
+											"key": "otp",
+											"value": "123456",
+											"description": "send otp to new phone number and enter here",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/change-mobile/confirm/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"change-mobile",
+										"confirm",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Mobile has been changed successfully.\"\r\n}"
+						}
+					]
 				},
 				{
 					"name": "Follow List",
@@ -368,7 +805,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3MDU1NTE2LCJpYXQiOjE3MzQ0NjM1MTYsImp0aSI6IjJlNTU1MTQ1MWExZTRkOTFiYTE4OTRmNGNjYzNhMjEzIiwidXNlcl9pZCI6Mn0.PksOsImDQWgffepNEkggbKzhFanj_B-7XaYalx-jsso",
+								"value": "Bearer <your_token>",
 								"type": "text"
 							}
 						],
@@ -390,7 +827,42 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Follow List",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <your_token>",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/follow-list/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"follow-list",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"followers\": [\r\n        \"User_1734792878\"\r\n    ],\r\n    \"followings\": [\r\n        \"User_1734792878\",\r\n        \"User_1734794625\"\r\n    ]\r\n}"
+						}
+					]
 				},
 				{
 					"name": "Follow",
@@ -399,7 +871,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3MDU1NTE2LCJpYXQiOjE3MzQ0NjM1MTYsImp0aSI6IjJlNTU1MTQ1MWExZTRkOTFiYTE4OTRmNGNjYzNhMjEzIiwidXNlcl9pZCI6Mn0.PksOsImDQWgffepNEkggbKzhFanj_B-7XaYalx-jsso",
+								"value": "Bearer <your_token>",
 								"type": "text"
 							}
 						],
@@ -432,7 +904,53 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Follow",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <your_token>",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "following",
+											"value": "User_1734786082",
+											"description": "username",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/follow/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"follow",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"id\": 5,\r\n    \"follower\": \"new_username\",\r\n    \"following\": \"User_1734786082\",\r\n    \"created_at\": \"2024-12-21T14:04:35.960665Z\"\r\n}"
+						}
+					]
 				},
 				{
 					"name": "UnFollow",
@@ -441,7 +959,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3MDU1NTE2LCJpYXQiOjE3MzQ0NjM1MTYsImp0aSI6IjJlNTU1MTQ1MWExZTRkOTFiYTE4OTRmNGNjYzNhMjEzIiwidXNlcl9pZCI6Mn0.PksOsImDQWgffepNEkggbKzhFanj_B-7XaYalx-jsso",
+								"value": "Bearer <your_token>",
 								"type": "text"
 							}
 						],
@@ -474,7 +992,53 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "UnFollow",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <your_token>",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "following",
+											"value": "User_1734786082",
+											"description": "username",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/unfollow/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"unfollow",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"You have unfollowed this user.\"\r\n}"
+						}
+					]
 				},
 				{
 					"name": "Notifications",
@@ -483,7 +1047,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3MDU1NTE2LCJpYXQiOjE3MzQ0NjM1MTYsImp0aSI6IjJlNTU1MTQ1MWExZTRkOTFiYTE4OTRmNGNjYzNhMjEzIiwidXNlcl9pZCI6Mn0.PksOsImDQWgffepNEkggbKzhFanj_B-7XaYalx-jsso",
+								"value": "Bearer <your_token>",
 								"type": "text"
 							}
 						],
@@ -505,7 +1069,42 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Notifications",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer <your_token>",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/auth/notifications/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"auth",
+										"notifications",
+										""
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"count\": 1,\r\n    \"next\": null,\r\n    \"previous\": null,\r\n    \"results\": [\r\n        {\r\n            \"id\": 4,\r\n            \"message\": \"User_1734792878 has started following you.\",\r\n            \"created_at\": \"2024-12-21T14:01:32.606629Z\"\r\n        }\r\n    ]\r\n}"
+						}
+					]
 				}
 			]
 		},
@@ -514,9 +1113,61 @@
 			"item": [
 				{
 					"name": "New Post",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
 					"request": {
 						"method": "POST",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Users/CreatorMilad.DESKTOP-91ENPR2/Pictures/___-_______-______-___-_-___-5-600x600.jpg"
+								},
+								{
+									"key": "caption",
+									"value": "asdfasdf",
+									"type": "text"
+								},
+								{
+									"key": "tags",
+									"value": "",
+									"description": "*Optional: a list of tags",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/posts/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"posts",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -524,7 +1175,42 @@
 					"name": "All Posts",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/posts/{id}/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"posts",
+								"{id}",
+								""
+							],
+							"query": [
+								{
+									"key": "author",
+									"value": "user one",
+									"disabled": true
+								},
+								{
+									"key": "tags",
+									"value": "python",
+									"disabled": true
+								}
+							]
+						}
 					},
 					"response": []
 				},
@@ -532,7 +1218,24 @@
 					"name": "Post Detail",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/posts/{id}/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"posts",
+								"{id}",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -540,7 +1243,30 @@
 					"name": "Delete Post",
 					"request": {
 						"method": "DELETE",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/posts/{id}/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"posts",
+								"{id}",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -548,7 +1274,45 @@
 					"name": "Edit Post",
 					"request": {
 						"method": "PATCH",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Users/CreatorMilad.DESKTOP-91ENPR2/Desktop/Untitled.png"
+								},
+								{
+									"key": "caption",
+									"value": "edited caption...",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/posts/3/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"posts",
+								"3",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -556,7 +1320,51 @@
 					"name": "Create Comment",
 					"request": {
 						"method": "POST",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "parent_id",
+									"value": "",
+									"description": "*Optional, for answer a comment",
+									"type": "text"
+								},
+								{
+									"key": "post_id",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "content",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/comments/create/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"comments",
+								"create",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -564,7 +1372,40 @@
 					"name": "Edit Comment",
 					"request": {
 						"method": "PUT",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "content",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/comments/{id}/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"comments",
+								"{id}",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -572,7 +1413,52 @@
 					"name": "Reaction",
 					"request": {
 						"method": "POST",
-						"header": []
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "reaction",
+									"value": "",
+									"description": "like/dislike",
+									"type": "text"
+								},
+								{
+									"key": "post_id",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "comment_id",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/reaction/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"reaction",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -580,7 +1466,30 @@
 					"name": "Tags",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/tags/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"tags",
+								""
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "tag_name",
+									"disabled": true
+								}
+							]
+						}
 					},
 					"response": []
 				}
@@ -875,7 +1784,241 @@
 		},
 		{
 			"name": "Chats",
-			"item": []
+			"item": [
+				{
+					"name": "Online Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/chats/online-users/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"chats",
+								"online-users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Chat",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3MDUzNDk3LCJpYXQiOjE3MzQ0NjE0OTcsImp0aSI6IjQ5YzUxOTI1MjE0NzQxYjc5OWNjYjNmYzI1YWQ3NmI1IiwidXNlcl9pZCI6Mn0.MRSOyxTL_bn2pcDzy6tSqjPorIgxZkw72Fr8bpYPlpo",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\": \"group\",\r\n    \"group_name\": \"asdf\",\r\n    \"members\": [1, 2, 3, 8]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/chats/create/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"chats",
+								"create",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Chat",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3MDUzNDk3LCJpYXQiOjE3MzQ0NjE0OTcsImp0aSI6IjQ5YzUxOTI1MjE0NzQxYjc5OWNjYjNmYzI1YWQ3NmI1IiwidXNlcl9pZCI6Mn0.MRSOyxTL_bn2pcDzy6tSqjPorIgxZkw72Fr8bpYPlpo",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\": \"group\",\r\n    \"group_name\": \"asdf\",\r\n    \"add_members\": [4]\r\n    // \"remove_members\": [4]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/chats/8/edit/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"chats",
+								"8",
+								"edit",
+								""
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "My Chats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/chats/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"chats",
+								""
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Chat Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/chats/{chat_id}/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"chats",
+								"{chat_id}",
+								""
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Chat Messages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDM4NjMyLCJpYXQiOjE3MzE4NDY2MzIsImp0aSI6ImNmNTJhMTFmN2E1ZDRkZGVhNzg0OGNiMjM3MTVkNzkxIiwidXNlcl9pZCI6MX0.0Js3adfSc4itgL0_LpPUwYbzpbXfTz2CTMvuaturl0U",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/chats/{chat_id}/messages/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"chats",
+								"{chat_id}",
+								"messages",
+								""
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
 			"name": "Chats-WebSocket",
