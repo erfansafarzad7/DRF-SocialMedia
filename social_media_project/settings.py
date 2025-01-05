@@ -13,6 +13,14 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import environ
+
+
+env = environ.Env()
+load_dotenv()
+
+# env = os.environ
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,12 +31,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-rqv_n&up5sqqm4eyy6hhaia*6h3cbgx+wua66(jli-wj#zm(g='
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -44,6 +52,7 @@ INSTALLED_APPS = [
     'django_filters',
     'channels',
     'graphene_django',
+    'corsheaders',
 
     'accounts.apps.AccountsConfig',
     'posts.apps.PostsConfig',
@@ -53,6 +62,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -65,7 +75,7 @@ ROOT_URLCONF = 'social_media_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': []
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -82,50 +92,27 @@ TEMPLATES = [
 WSGI_APPLICATION = 'social_media_project.wsgi.application'
 ASGI_APPLICATION = 'social_media_project.asgi.application'
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("127.0.0.1", 6379)],
-#         },
-#     },
-# }
-
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            # "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "REDIS_CLIENT_CLASS": "redis.client.Redis",
-        }
-    },
-    "online_users": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/2",
-        "OPTIONS": {
-            # "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "REDIS_CLIENT_CLASS": "redis.client.Redis",
-        }
-    }
-}
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
     }
 }
 
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -162,7 +149,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -174,19 +161,36 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
+
 # Rest-Framework settings
 REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer',
+    ],
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '20/min',
+        'user': '20/min'
+    },
+
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
 }
 
 # SimpleJWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
@@ -195,13 +199,66 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
 }
 
+# WebSocket settings
+CHANNEL_LAYERS = {
+    'default': {
+        # 'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+
+        },
+    },
+}
+
+# Redis configs
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+
+
+        "OPTIONS": {
+            # "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "REDIS_CLIENT_CLASS": "redis.client.Redis",
+        }
+    },
+    "online_users": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/2",
+
+        "OPTIONS": {
+            # "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "REDIS_CLIENT_CLASS": "redis.client.Redis",
+        }
+    }
+}
+
 # GraphQL settings
 GRAPHENE = {
     'SCHEMA': 'social_media_project.schema.schema'
 }
 
 # Celery settings
-# CELERY_BROKER_URL = 'redis://localhost:6379'  # Redis
-CELERY_BROKER_URL = 'pyamqp://guest@localhost//'  # RabbitMQ
+CELERY_BROKER_URL = env('CELERY_BROKER')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+# Cors settings (for public)
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+# Csrf settings (for public)
+CSRF_TRUSTED_ORIGINS = []
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_HTTPONLY = False
+
+
+# SECURE_BROWSER_XSS_FILTER = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# X_FRAME_OPTIONS = 'DENY'
+# SECURE_SSL_REDIRECT = True
+# SECURE_HSTS_SECONDS = 630720000
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True

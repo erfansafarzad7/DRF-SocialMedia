@@ -1,0 +1,68 @@
+services:
+  web:
+    build:
+      context: .:/app
+      dockerfile: Dockerfile
+    container_name: django_web
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=social_media_project.settings
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
+  postgres:
+    image: postgres:15
+    container_name: django_postgres
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:alpine
+    container_name: django_redis
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .:/app
+    container_name: django_celery
+    command: celery -A social_media_projects worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - postgres
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: django_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - static_volume:/var/www/html/static
+    depends_on:
+      - web
+
+
+volumes:
+  postgres_data:
+  static_volume:
