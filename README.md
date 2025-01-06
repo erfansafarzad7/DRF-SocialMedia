@@ -6,9 +6,9 @@ It features core functionalities for `User Management`, `Real-Time Chat`, and `P
 
 </br>
 
-## Features
+## 🔥 Features
 
-### General:
+### 📌 General:
 - Technologies Used:
   - Django REST Framework
   - GraphQL
@@ -16,7 +16,7 @@ It features core functionalities for `User Management`, `Real-Time Chat`, and `P
   - Celery, RabbitMQ, Redis
   - Docker, Nginx
 
-### Functionalities:
+### 📌 Functionalities:
 1. User Management:
    - User list and profiles
    - OTP-based authentication
@@ -35,14 +35,14 @@ It features core functionalities for `User Management`, `Real-Time Chat`, and `P
    - Tagging system for filtering posts by tags
    - GraphQL queries
 
-### Security:
+### 🔐 Security:
 - Basic security measures implemented for general use. (Not configured for production-grade deployment.)
 
 
 ---
 </br>
 
-## Installation and Setup
+## ⚙ Installation and Setup
 
 1. Clone the repository:
 
@@ -59,15 +59,15 @@ It features core functionalities for `User Management`, `Real-Time Chat`, and `P
 ---
 </br>
 
-## Usage
+## 👀 Usage
 - Import the provided Postman collection for testing the APIs.
 
 ---
 </br>
 
-# API Examples
+# ⭐ API Examples
 
-### Get All Users:
+### 📌 Get All Users:
 
 **Request:**
 ```http
@@ -92,7 +92,7 @@ Host: 127.0.0.1:8000
 }
 ```
 
-### Register New User:
+### 📌Register New User:
 **Note: first of all you nedd to send an otp-code to mobile number using this path:**
 
 **Request for generate otp:**
@@ -110,7 +110,7 @@ mobile=1234567890
 }
 ```
 
-**Then:**
+**📌 Then:**
 
 **Request for confirm otp:**
 ```http
@@ -131,7 +131,7 @@ password=12345678
 }
 ```
 
-### Your Profile:
+### 📌 Your Profile:
 
 **Request:**
 ```http
@@ -153,11 +153,34 @@ Authorization: Bearer <your_access_token>
 ---
 </br>
 
-## Future Enhancements
+## ✔ Future Enhancements
 - Deployment of a live demo version.
 
+---
 
-## Contact Info
-- LinkedIn: [https://www.linkedin.com/in/erfansafarzad7]
-- Email: [erfansafarzad7@gmail.com]
-- Telegram: [https://t.me/erfansafarzad7]
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+1. Fork the repository.
+2. Create a new branch.
+3. Commit your changes.
+4. Submit a pull request.
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+
+---
+
+### 🔗 Connect with Me
+<!-- - GitHub: [Visit Profile](https://github.com/erfansafarzad7) -->
+- LinkedIn: [Visit Profile](https://linkedin.com/in/erfansafarzad7)
+- Email: [Send Me an Email](mailto:erfansafarzad7@gmail.com)
+- Telegram: [Send Me Message](https://t.me/erfansafarzad7)
+
+---
+
+Happy Coding! 🎉
