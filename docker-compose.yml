@@ -1,7 +1,7 @@
 services:
   web:
     build:
-      context: .:/app
+      context: .
       dockerfile: Dockerfile
     container_name: django_web
     volumes:
@@ -35,7 +35,9 @@ services:
       - "6379:6379"
 
   celery:
-    build: .:/app
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: django_celery
     command: celery -A social_media_projects worker -l info
     volumes:
