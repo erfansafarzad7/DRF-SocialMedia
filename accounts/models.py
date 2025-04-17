@@ -22,7 +22,7 @@ class OTPVerification(models.Model):
     Model to store OTP (One-Time Password) for user authentication.
     """
     mobile = models.CharField(_('Mobile Number'), max_length=11, validators=[phone_regex], unique=True)
-    code = models.CharField(_('One Time Password'), max_length=6, default=generate_random_code())
+    code = models.CharField(_('One Time Password'), max_length=6, default=generate_random_code)
     created_at = models.DateTimeField(_('OTP Create Time'), null=True, blank=True)
 
     def __str__(self):
